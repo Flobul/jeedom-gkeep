@@ -9,7 +9,7 @@
 <!-- market-badges:start -->
 [![Note](https://img.shields.io/badge/Note-Aucun%20avis-lightgrey?style=flat-square)](https://market.jeedom.com/index.php?v=d&p=market_display&id=4423)
 [![Prix](https://img.shields.io/badge/Prix-Gratuit-brightgreen?style=flat-square)](https://market.jeedom.com/index.php?v=d&p=market_display&id=4423)
-[![Téléchargements](https://img.shields.io/badge/T%C3%A9l%C3%A9chargements-861-informational?style=flat-square)](https://market.jeedom.com/index.php?v=d&p=market_display&id=4423)
+[![Téléchargements](https://img.shields.io/badge/T%C3%A9l%C3%A9chargements-863-informational?style=flat-square)](https://market.jeedom.com/index.php?v=d&p=market_display&id=4423)
 [![Commentaires](https://img.shields.io/badge/Commentaires-0-lightgrey?style=flat-square)](https://market.jeedom.com/index.php?v=d&p=market_display&id=4423)
 <!-- market-badges:end -->
 
