@@ -14,6 +14,8 @@
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* global version */
+
 var installDate = document.getElementById('span_plugin_install_date');
 if (installDate) installDate.textContent = `v${version} (${installDate.textContent})`;
 

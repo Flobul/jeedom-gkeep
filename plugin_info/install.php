@@ -30,7 +30,7 @@ function gkeep_install() {
 		$cron->setTimeout(30);
 		$cron->save();
 	}
-    config:save(1, 'max_account_number','keep');
+    config::save(1, 'max_account_number', 'gkeep');
 }
 
 function gkeep_update() {

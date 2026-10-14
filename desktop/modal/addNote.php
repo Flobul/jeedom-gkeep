@@ -66,7 +66,7 @@ $emails = config::byKey('email', 'gkeep');
             <sup><i class="fas fa-question-circle tippied" data-title="{{La note sera ajoutée à ce compte}}"></i></sup>
           </label>
           <div class="col-sm-4">
-            <select class="input-sm" id="accountNote" title="{{Compte de la note}}">
+            <select class="input-sm" id="accountNote" data-title="{{Compte de la note}}">
               <?php
                   foreach ($emails as $idAcc => $emailAcc) {
                       echo '<option value="'.$emailAcc.'">'.$emailAcc.'</option>';

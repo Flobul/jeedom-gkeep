@@ -225,6 +225,7 @@ class gkeep extends eqLogic
     public static function login($_id = null)
     {
         $cmd = array();
+        $return = array();
         for ($i = 1; $i <= config::byKey('max_account_number', __CLASS__); $i++) {
             if ($_id && $_id != $i)  continue;
             $email = config::byKey('email', __CLASS__, '')[$i];
@@ -1153,6 +1154,7 @@ class gkeepCmd extends cmd
         $eqLogic = $this->getEqLogic();
         log::add('gkeep', 'debug', __("Action sur ", __FILE__) . $this->getLogicalId() . __(" avec options ", __FILE__) . json_encode($_options));
         $parts = explode('::', $this->getLogicalId());
+        $replace = array();
 
         switch ($this->getSubType()) {
             case 'slider':

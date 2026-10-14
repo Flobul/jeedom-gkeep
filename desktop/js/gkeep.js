@@ -21,7 +21,7 @@ if (commandTableBody && typeof Sortable !== 'undefined') {
 
 function addCmdToTable(_cmd) {
   if (!isset(_cmd)) {
-    var _cmd = {
+    _cmd = {
       configuration: {}
     };
   }
@@ -177,7 +177,7 @@ function updateDisplayCard(_card, _eq) {
 	});
 }
 
-asTableHelper = function(_eq, _item, aClass, unaClass) {
+function asTableHelper(_eq, _item, aClass, unaClass) {
     var colored = '';
     var iClass = '';
     if (_item == 'enable') {
@@ -208,7 +208,7 @@ asTableHelper = function(_eq, _item, aClass, unaClass) {
 	return '<i class="' + iClass + colored + '"></i>';
 }
 
-asCardHelper = function(_eq, _item, _name, _unname, aClass, unaClass) {
+function asCardHelper(_eq, _item, _name, _unname, aClass, unaClass) {
     var name = '';
     var colored = '';
     var iClass = '';
