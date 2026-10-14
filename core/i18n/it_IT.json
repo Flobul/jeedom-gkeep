@@ -1,5 +1,7 @@
 {
     "plugins\/gkeep\/core\/ajax\/gkeep.ajax.php": {
+        "401 - Accès non autorisé": "401 - Accesso non autorizzato",
+        "Aucune méthode correspondante": "Nessun metodo corrispondente",
         "cmd gkeep non trouvée : ": "cmd gkeep non trovato :",
         "eqLogic gkeep non trouvé : ": "eqLogic gkeep non trovato :",
         "gkeep eqLogic non trouvé : ": "gkeep eqLogic non trovato :"
@@ -9,9 +11,11 @@
         " avec options ": " con opzioni",
         " vient d\\'être créé": " è stato appena creato",
         "Action sur ": "Azione su",
+        "Adresse email manquante pour le compte ": "Indirizzo e-mail mancante per l'account ",
         "Ajouter un item": "Aggiungere un elemento",
         "Archiver la note": "Nota d'archivio",
         "Argument GKeep invalide": "Argomento GKeep non valido",
+        "Aucun jeton Google Keep disponible pour ": "Nessun token Google Keep disponibile per ",
         "Authentification Google refusée ou indisponible. Vérifiez les dépendances et utilisez un cookie OAuth récent du bon compte.": "Autenticazione Google rifiutata o non disponibile. Verifica le dipendenze e utilizza un cookie OAuth recente dell'account corretto.",
         "Commande inexistante ": "Nessun controllo",
         "Désarchiver la note": "Disarchiviare la nota",
@@ -30,17 +34,18 @@
         "Rafraîchir": "Aggiorna",
         "Restaurer la note": "Ripristino della nota",
         "Réponse GKeep invalide": "Risposta GKeep non valida",
-        "Résultat $_layout ": "Risultato $_layout",
         "Sans titre": "Senza titolo",
         "Suppression de la note ": "Cancella nota",
         "Supprimer la note": "Cancella nota",
         "Supprimer un item": "Eliminare un elemento",
+        "Synchronisation Google Keep ignorée : ": "Sincronizzazione di Google Keep ignorata: ",
         "Texte": "Texte",
         "Valeur à envoyer ": "Valore da inviare",
         "Veuillez renseignez un identifiant et un mot de passe de connexion.": "Inserire login e password.",
         "début": "avvio",
         "début ": "avvio",
         "fin": "fine",
+        "réponse invalide": "risposta non valida",
         "Épingler la note": "Appunta la nota"
     },
     "plugins\/gkeep\/core\/class\/gkeep.display.php": {
@@ -88,6 +93,11 @@
         "Date de collecte": "Data di raccolta",
         "Date de valeur": "Data di valuta"
     },
+    "plugins\/gkeep\/core\/template\/dashboard\/gkeepEqlogic.html": {
+        "Archiver la note\/liste": "Archivia la nota\/lista",
+        "Rafraîchir la note\/liste": "Aggiorna la valutazione\/l'elenco",
+        "Supprimer la note\/liste": "Elimina la nota\/l'elenco"
+    },
     "plugins\/gkeep\/core\/template\/mobile\/cmd.action.message.additem.html": {
         "Ajouter l'item": "Aggiungi l'articolo",
         "Annuler": "Cancella",
@@ -114,6 +124,11 @@
     "plugins\/gkeep\/core\/template\/mobile\/cmd.info.string.video.html": {
         "Date de collecte": "Data di raccolta",
         "Date de valeur": "Data di valuta"
+    },
+    "plugins\/gkeep\/core\/template\/mobile\/gkeepEqlogic.html": {
+        "Archiver la note\/liste": "Archivia la nota\/lista",
+        "Rafraîchir la note\/liste": "Aggiorna la valutazione\/l'elenco",
+        "Supprimer la note\/liste": "Elimina la nota\/l'elenco"
     },
     "plugins\/gkeep\/desktop\/js\/configuration.js": {
         "Authentification refusée. Utilisez la connexion avec navigateur.": "Autenticazione rifiutata. Utilizzare l'accesso tramite browser.",
@@ -157,6 +172,9 @@
         "Valeur de l\\'information": "Valore delle informazioni",
         "Visible": "Visibile",
         "Épinglé": "Appuntato"
+    },
+    "plugins\/gkeep\/desktop\/js\/health.js": {
+        "Santé Google Keep": "Salute Google Keep"
     },
     "plugins\/gkeep\/desktop\/modal\/addNote.php": {
         "Ajouter": "Ajouter",
@@ -203,18 +221,35 @@
         "Étiquettes.": "Tags."
     },
     "plugins\/gkeep\/desktop\/modal\/health.php": {
+        "401 - Accès non autorisé": "401 - Accesso non autorizzato",
         "Appareil": "Dispositivo",
         "Archivé": "Archiviato",
         "Aucun": "Nessuno",
+        "Aucune note Google Keep": "Nessuna nota su Google Keep",
         "Collaborateurs": "Dipendenti",
         "Couleur": "Couleur",
         "Date création": "Data di creazione",
         "Dernière communication": "Dernière communication",
+        "Diagnostic du plugin": "Diagnosi del plugin",
+        "Listes": "Elenchi",
+        "Normal": "Normale",
+        "Notes": "Notes",
+        "Notes et listes": "Appunti ed elenchi",
         "Ordre": "Ordine",
+        "Rafraîchir": "Aggiorna",
+        "Résumé de la santé Google Keep": "Riepilogo dello stato di salute su Google Keep",
+        "Santé Google Keep": "Salute Google Keep",
         "Statut": "Stato",
         "Supprimé": "Soppresso",
         "Type": "Tipo",
-        "Épinglé": "Appuntato"
+        "dans Jeedom": "in Jeedom",
+        "listes synchronisées": "elenchi sincronizzati",
+        "notes simples": "appunti semplici",
+        "Épinglé": "Appuntato",
+        "Épinglés": "In evidenza",
+        "Équipements": "Apparecchiature",
+        "État des notes et listes, collaborateurs et dernières synchronisations.": "Stato delle note e delle liste, dei collaboratori e delle ultime sincronizzazioni.",
+        "éléments prioritaires": "elementi prioritari"
     },
     "plugins\/gkeep\/desktop\/php\/gkeep.php": {
         "401 - Accès non autorisé": "401 - Accesso non autorizzato",
@@ -266,33 +301,36 @@
     "plugins\/gkeep\/plugin_info\/configuration.php": {
         "Adresse email": "Indirizzo e-mail",
         "Ancienne connexion par mot de passe": "Precedente accesso tramite password",
-        "Android ID : identifiant de 16 caractères hexadécimaux utilisé pour l’échange. Ne partagez jamais le cookie ni le master token.": "ID Android: identificativo composto da 16 caratteri esadecimali utilizzato per lo scambio. Non condividere mai il cookie né il master token.",
+        "Android ID": "ID Android",
         "Après validation Google, la page peut rester sur un écran de chargement : n’attendez pas une redirection. Dans cet onglet Google, ouvrez F12 (Mac : Option + Commande + I), puis Application → Stockage → Cookies → https:\/\/accounts.google.com. Filtrez sur oauth_token et copiez uniquement sa Valeur. Si le cookie est absent, terminez le consentement Google ou recommencez le parcours ; le paramètre TL de l’adresse ne remplace pas ce cookie.": "Dopo la verifica di Google, la pagina potrebbe rimanere su una schermata di caricamento: non attendete il reindirizzamento. In questa scheda di Google, aprite F12 (Mac: Opzione + Comando + I), quindi Applicazione → Archiviazione → Cookie → https:\/\/accounts.google.com. Filtrate per oauth_token e copiate solo il suo Valore. Se il cookie è assente, completate il consenso di Google o ricominciate la procedura; il parametro TL dell’indirizzo non sostituisce questo cookie.",
         "Authentification": "Autenticazione",
-        "Branche": "Ramo",
+        "Changelog": "Changelog",
         "Cliquez ici pour la première connexion.": "Fare clic qui per effettuare il primo accesso.",
+        "Communauté": "Comunità",
         "Compte n°": "Account n",
+        "Configuration du plugin": "Configurazione del plugin",
+        "Configurez les comptes Google Keep synchronisés par le plugin.": "Configura gli account Google Keep sincronizzati dal plugin.",
+        "Connectez votre compte Google Keep à Jeedom et retrouvez vos notes et listes.": "Collega il tuo account Google Keep a Jeedom e accedi alle tue note e alle tue liste.",
         "Connexion Google avec navigateur": "Accesso tramite Google con il browser",
-        "Documentation complète du plugin": "Documentazione completa del plugin",
+        "Cookie OAuth (oauth_token)": "Cookie OAuth (oauth_token)",
+        "Documentation": "Documentazione",
+        "Définissez la fréquence de récupération des notes et listes Google Keep.": "Imposta la frequenza di sincronizzazione delle note e delle liste di Google Keep.",
         "Enregistrez l’adresse email, puis connectez-vous au même compte Google dans la page ci-dessous. Dans les outils de développement, Application \/ Cookies, copiez uniquement la valeur du cookie oauth_token.": "Salva l'indirizzo e-mail, quindi accedi allo stesso account Google nella pagina sottostante. Negli strumenti di sviluppo, alla voce Applicazione \/ Cookie, copia solo il valore del cookie oauth_token.",
-        "Entrez l'identifiant.": "Inserire l'identificativo.",
         "Entrez le mot de passe.": "Inserire la password.",
-        "Entrez le nombre maximum de compte à synchroniser.": "Inserire il numero massimo di account da sincronizzare.",
-        "Général": "Principale",
+        "Entrez le nombre maximum de comptes à synchroniser.": "Inserisci il numero massimo di account da sincronizzare.",
+        "Entrez l’identifiant.": "Inserisci l'ID.",
+        "Identifiant hexadécimal de 16 caractères représentant l’appareil Android virtuel. Il doit rester identique pour l’échange du cookie et les connexions Google Keep suivantes.": "Identificativo esadecimale di 16 caratteri che rappresenta il dispositivo Android virtuale. Deve rimanere identico per lo scambio del cookie e per le successive connessioni a Google Keep.",
         "Intervalle de rafraîchissement des informations (cron)": "Intervallo di aggiornamento delle informazioni (cron)",
         "Jamais": "Jamais",
         "Jeton d'accès": "Token di accesso",
-        "Jeton d'accès généré": "Token di accesso generato",
+        "Jeton d’accès généré": "Token di accesso generato",
         "Jeton enregistré": "Token registrato",
-        "Les dernières discussions autour du plugin": "Ultime discussioni sul plugin",
         "Mot de passe": "Password",
+        "Ne partagez jamais le cookie OAuth ni le master token.": "Non condividere mai il cookie OAuth né il master token.",
         "Nombre de comptes": "Numero di account",
         "Ouvrir Google": "Apri Google",
-        "Paramètres": "Impostazioni",
-        "Pensez à mettre le tag": "Ricordatevi di mettere il tag",
-        "Présentation du plugin": "Presentazione del plugin",
-        "Source": "Sorgente",
-        "Sélectionnez l'intervalle auquel le plugin ira récupérer les informations sur les serveurs Creality.": "Selezionare l'intervallo con cui il plugin recupera le informazioni dai server Creality.",
+        "Synchronisation": "Sincronizzazione",
+        "Sélectionnez l’intervalle auquel le plugin récupère les informations sur les serveurs Google Keep.": "Seleziona l'intervallo con cui il plugin recupera le informazioni dai server di Google Keep.",
         "Toutes les 10 minutes": "Ogni 10 minuti",
         "Toutes les 15 minutes": "Ogni 15 minuti",
         "Toutes les 2 minutes": "Ogni 2 minuti",
@@ -303,8 +341,6 @@
         "Toutes les 5 minutes": "Ogni 5 minuti",
         "Toutes les minutes": "Ogni minuto",
         "Valider la connexion Google": "Conferma l'accesso a Google",
-        "Version": "Versione",
-        "et à fournir les log dans les balises préformatées": "e di fornire registri in tag preformattati",
-        "sur le community": "sulla comunità"
+        "Version": "Versione"
     }
 }
