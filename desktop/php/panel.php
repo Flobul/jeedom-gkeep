@@ -2,6 +2,11 @@
 if (!isConnect()) {
 	throw new Exception('{{401 - Accès non autorisé}}');
 }
+?>
+
+<?php include_file('desktop', 'gkeep', 'css', 'gkeep'); ?>
+
+<?php
 
 $gkeep_widgets = array();
 $eqLogics = eqLogic::byType('gkeep');

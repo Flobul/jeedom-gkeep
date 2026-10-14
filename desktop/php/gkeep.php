@@ -19,7 +19,7 @@
 require_once __DIR__ . '/../../../../plugins/gkeep/core/class/gkeep.display.php';
 
 if (!isConnect('admin')) {
-    throw new Exception('{{401 - Accès non autorisé}}');
+    throw new Exception(__('401 - Accès non autorisé', __FILE__));
 }
 $plugin = plugin::byId('gkeep');
 sendVarToJS('eqType', $plugin->getId());
@@ -30,14 +30,14 @@ $eqLogics = eqLogic::byType($plugin->getId());
 
 <div class="row row-overflow">
   <div class="eqLogicThumbnailDisplay" style="border-left: solid 1px #EEE; padding-left: 25px;">
-    <legend><i class="fa fa-cog"></i> {{Gestion}}</legend>
+    <legend><i class="fas fa-cog"></i> {{Gestion}}</legend>
     <div class="eqLogicThumbnailContainer col-sm-8">
 
         <?php
           gkeep_display::displayActionCard('{{Synchronisation}}', 'fa-sync', 'id="bt_synchronizegkeep"', 'eqLogicAction logoPrimaryGkeep');
           gkeep_display::displayActionCard('{{Ajouter}}', 'fa-folder-plus', 'id="bt_addgkeep"', 'eqLogicAction logoSecondaryGkeep');
           gkeep_display::displayActionCard('{{Configuration}}', 'fa-wrench', 'data-action="gotoPluginConf"', 'logoSecondary');
-          gkeep_display::displayActionCard('{{Santé}}', 'fa-medkit', 'id="bt_healthgkeep"', 'logoSecondary');
+          gkeep_display::displayActionCard('{{Santé}}', 'fa-heartbeat', 'id="bt_healthgkeep"', 'logoSecondary');
           gkeep_display::displayActionCard('{{Documentation}}', 'fa-book-reader', 'id="bt_documentationgkeep" data-location="' . $plugin->getDocumentation() . '"', 'logoSecondary');
           gkeep_display::displayActionCard('{{Suppression de tous les appareils}}', 'fa-trash-alt', 'data-action="delete" data-action2="all"', 'logoTrashGkeep');
           ?>
@@ -73,16 +73,16 @@ $eqLogics = eqLogic::byType($plugin->getId());
   <div class="col-xs-12 eqLogic" style="display: none;">
     <div class="input-group pull-right" style="display:inline-flex">
       <span class="input-group-btn">
-        <a class="btn btn-default btn-sm eqLogicAction roundedLeft" data-action="configure"><i class="fa fa-cogs"></i> {{Configuration avancée}}</a>
+        <a class="btn btn-default btn-sm eqLogicAction roundedLeft" data-action="configure"><i class="fas fa-cogs"></i> {{Configuration avancée}}</a>
         <a class="btn btn-default btn-sm eqLogicAction" data-action="copy"><i class="fas fa-copy"></i> {{Dupliquer}}</a>
         <a class="btn btn-sm btn-success eqLogicAction" data-action="save"><i class="fas fa-check-circle"></i> {{Sauvegarder}}</a>
         <a class="btn btn-danger btn-sm eqLogicAction roundedRight" data-action="remove"><i class="fas fa-minus-circle"></i> {{Supprimer}}</a>
       </span>
     </div>
     <ul class="nav nav-tabs" role="tablist">
-      <li role="presentation"><a href="#" class="eqLogicAction" aria-controls="home" role="tab" data-toggle="tab" data-action="returnToThumbnailDisplay"><i class="fa fa-arrow-circle-left"></i></a></li>
+      <li role="presentation"><a href="#" class="eqLogicAction" aria-controls="home" role="tab" data-toggle="tab" data-action="returnToThumbnailDisplay"><i class="fas fa-arrow-circle-left"></i></a></li>
       <li role="presentation" class="active"><a href="#eqlogictab" aria-controls="home" role="tab" data-toggle="tab"><i class="fas fa-tachometer-alt"></i> {{Équipement}}</a></li>
-      <li role="presentation"><a href="#commandtab" aria-controls="profile" role="tab" data-toggle="tab"><i class="fa fa-list-alt"></i> {{Commandes}}</a></li>
+      <li role="presentation"><a href="#commandtab" aria-controls="profile" role="tab" data-toggle="tab"><i class="fas fa-list-alt"></i> {{Commandes}}</a></li>
     </ul>
     <div class="tab-content" style="height:calc(100% - 50px);overflow:auto;overflow-x: hidden;">
       <div role="tabpanel" class="tab-pane active" id="eqlogictab">

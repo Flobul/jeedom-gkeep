@@ -68,7 +68,7 @@
           }
       });
       function updateNote#id#(_change) {
-        $.ajax({
+        domUtils.ajax({
           type: "POST",
           url: "plugins/gkeep/core/ajax/gkeep.ajax.php",
           data: {
@@ -83,7 +83,7 @@
           },
           success: function(data) {
             if (data.state != 'ok') {
-              $.fn.showAlert({
+              jeedomUtils.showAlert({
                 message: data.result,
                 level: 'danger'
               });

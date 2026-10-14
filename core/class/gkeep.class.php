@@ -28,7 +28,7 @@ class gkeep extends eqLogic
      *
      * @var string
      */
-    public static $_pluginVersion = '1.0.2';
+    public static $_pluginVersion = '1.01.0';
 
     /**
      * Tableau des templates.
@@ -173,10 +173,17 @@ class gkeep extends eqLogic
      * @return array Le jeton de connexion.
      */
     public static function getTokenByUsername($_account) {
-        if ($key = array_search($_account, config::byKey('email', __CLASS__))) {
-            return config::byKey('token', __CLASS__)[$key];
+        $key = array_search($_account, config::byKey('email', __CLASS__, array()), true);
+        if ($key !== false) {
+            return config::byKey('token', __CLASS__, array())[$key] ?? false;
         }
         return false;
+    }
+
+    public static function getAndroidIdByUsername($_account) : string {
+        $key = array_search($_account, config::byKey('email', __CLASS__, array()), true);
+        if ($key === false) return '';
+        return (string)(config::byKey('android_id', __CLASS__, array())[$key] ?? '');
     }
 
     /**
@@ -194,16 +201,24 @@ class gkeep extends eqLogic
             throw new InvalidArgumentException(__('Enregistrez le compte et renseignez un cookie OAuth et un Android ID de 16 caractères hexadécimaux.', __FILE__));
         }
         $process = proc_open(array(self::getPythonPath(), __DIR__ . '/../../resources/google_auth.py'),
-            array(0=>array('pipe','r'),1=>array('pipe','w'),2=>array('file','/dev/null','a')), $pipes);
+            array(0=>array('pipe','r'),1=>array('pipe','w'),2=>array('pipe','w')), $pipes);
         if (!is_resource($process)) { throw new RuntimeException(__('Impossible de lancer l’authentification Google.', __FILE__)); }
         fwrite($pipes[0], json_encode(array('email'=>$emails[$id], 'oauth_token'=>$_cookie, 'android_id'=>$_android)));
         fclose($pipes[0]);
         $output = stream_get_contents($pipes[1]); fclose($pipes[1]);
+        $stderr = stream_get_contents($pipes[2]); fclose($pipes[2]);
         $code = proc_close($process);
         $result = json_decode($output, true);
-        if ($code !== 0 || empty($result['token'])) { throw new RuntimeException(__('Authentification Google refusée ou indisponible. Vérifiez les dépendances et utilisez un cookie OAuth récent du bon compte.', __FILE__)); }
+        if ($code !== 0 || empty($result['token'])) {
+            $errorCode = is_array($result) ? (string)($result['code'] ?? 'invalid_response') : 'invalid_response';
+            $detail = is_array($result) ? (string)($result['detail'] ?? '') : '';
+            log::add(__CLASS__, 'warning', '[OAuth] ' . $errorCode . ($detail !== '' ? ' : ' . $detail : '') . ($stderr !== '' ? ' (stderr présent)' : ''));
+            throw new RuntimeException(__('Authentification Google refusée ou indisponible. Vérifiez les dépendances et utilisez un cookie OAuth récent du bon compte.', __FILE__) . ' [' . $errorCode . ($detail !== '' ? ' / ' . $detail : '') . ']');
+        }
         $tokens = config::byKey('token', __CLASS__, array());
         $tokens[$id] = $result['token']; config::save('token', $tokens, __CLASS__);
+        $androidIds = config::byKey('android_id', __CLASS__, array());
+        $androidIds[$id] = strtolower($_android); config::save('android_id', $androidIds, __CLASS__);
         return array('authenticated'=>true);
     }
 
@@ -291,23 +306,35 @@ class gkeep extends eqLogic
     public static function getNotes($_id = false, $_account = null)
     {
         log::add(__CLASS__, 'debug', __FUNCTION__ . ' : ' . __('début', __FILE__) . ' ' . $_id . ' & ' . $_account);
+        $result = array();
+        $emails = config::byKey('email', __CLASS__, array());
+        $tokens = config::byKey('token', __CLASS__, array());
         for ($i = 1; $i <= config::byKey('max_account_number', __CLASS__); $i++) {
-            $email = config::byKey('email', __CLASS__, '')[$i];
-            if (config::byKey('token', __CLASS__, array(1 => ''))[$i] == '') {
+            $email = (string)($emails[$i] ?? '');
+            if ($_account && $_account != $email) continue;
+            if ($email === '') {
+                log::add(__CLASS__, 'warning', __('Adresse email manquante pour le compte ', __FILE__) . $i);
+                continue;
+            }
+            if (empty($tokens[$i])) {
                 self::login($i);
+                $tokens = config::byKey('token', __CLASS__, array());
             }
-            if ($_account && $_account != $email)  continue;
-            if ($email == '') {
-                throw new Exception(__('Veuillez renseignez un identifiant et un mot de passe de connexion.', __FILE__));
+            if (empty($tokens[$i])) {
+                log::add(__CLASS__, 'warning', __('Aucun jeton Google Keep disponible pour ', __FILE__) . $email);
+                continue;
             }
-            $cmd = array('--username', (string) $email, '--token', (string) config::byKey('token', __CLASS__, array(1 => ''))[$i], 'get_notes');
+            $cmd = array('--username', $email, '--token', (string)$tokens[$i], 'get_notes');
             if ($_id) {
                 $cmd[] = '--note_id';
                 $cmd[] = (string) $_id;
             }
 
             $return = self::sendCmdAndFormatResult($cmd);
-            $result = array();
+            if (!is_array($return) || (int)($return['code'] ?? -1) !== 0 || !isset($return['result']) || !is_array($return['result'])) {
+                log::add(__CLASS__, 'warning', __('Synchronisation Google Keep ignorée : ', __FILE__) . ($return['message'] ?? __('réponse invalide', __FILE__)));
+                continue;
+            }
             if ($_id) {
                 $result[] = self::checkAndCreateEquipementAndCmd($return['result'], $email);
             } else {
@@ -327,13 +354,13 @@ class gkeep extends eqLogic
      *
      * @return void
      */
-    public static function removeOldEqlogic($_notes)
+    public static function removeOldEqlogic(array $_notes, string $_account)
     {
         if (count($_notes) < 1) return;
         $eqLogicsToRemove = array();
         foreach (eqLogic::byType(__CLASS__) as $eqLogic) {
             $found = false;
-            if ($eqLogic->getConfiguration('account') != $email) { //autre compte, donc on passe
+            if ($eqLogic->getConfiguration('account') != $_account) { //autre compte, donc on passe
                 $found = true;
                 continue;
             }
@@ -675,7 +702,7 @@ class gkeep extends eqLogic
      *
      * @param array $command Les arguments à transmettre au script.
      *
-     * @return string Le résultat de la commande.
+     * @return array Sortie de la commande et code de retour.
      *
      * @throws Exception En cas d'erreur lors de l'exécution de la commande.
      */
@@ -699,7 +726,7 @@ class gkeep extends eqLogic
         if ($return_value !== 0) {
             log::add(__CLASS__, 'warning', __('La commande GKeep a retourné le code ', __FILE__) . $return_value);
         }
-        return $result;
+        return array('output' => $result, 'exit_code' => $return_value);
     }
 
     /**
@@ -711,16 +738,50 @@ class gkeep extends eqLogic
      */
     public static function sendCmdAndFormatResult(array $cmd)
     {
-        $result = self::executeCommand($cmd);
-        $result_json = json_decode($result,true);
+        $usernameIndex = array_search('--username', $cmd, true);
+        $tokenIndex = array_search('--token', $cmd, true);
+        if ($usernameIndex !== false && $tokenIndex !== false && isset($cmd[$usernameIndex + 1], $cmd[$tokenIndex + 1])) {
+            $deviceId = self::getAndroidIdByUsername((string)$cmd[$usernameIndex + 1]);
+            if ($deviceId !== '') {
+                array_splice($cmd, $tokenIndex + 2, 0, array('--device-id', $deviceId));
+            }
+        }
+        $execution = self::executeCommand($cmd);
+        $result = $execution['output'];
+        $result_json = self::decodeCommandResponse($result);
         if (is_array($result_json) && isset($result_json['code'])) {
             if ($result_json['code'] !== 0) {
                 log::add(__CLASS__, 'warning', __('Erreur GKeep : ', __FILE__) . ($result_json['message'] ?? $result_json['code']));
             }
             return $result_json;
         }
-        log::add(__CLASS__, 'warning', __('Réponse GKeep invalide', __FILE__));
-        return array('code' => -1, 'message' => __('Réponse GKeep invalide', __FILE__));
+        $exitCode = (int)($execution['exit_code'] ?? -1);
+        log::add(__CLASS__, 'warning', __('Réponse GKeep invalide', __FILE__) . ' (code ' . $exitCode . ')');
+        return array('code' => -1, 'message' => __('Réponse GKeep invalide', __FILE__) . ' (code ' . $exitCode . ')');
+    }
+
+    /**
+     * Extrait la dernière réponse JSON valide de la sortie du CLI.
+     * Certaines versions des dépendances écrivent des avertissements avant le
+     * JSON ; ces lignes ne doivent pas masquer le vrai message d'authentification.
+     */
+    private static function decodeCommandResponse(string $output) : ?array
+    {
+        $decoded = json_decode(trim($output), true);
+        if (is_array($decoded) && isset($decoded['code'])) {
+            return $decoded;
+        }
+
+        $lines = array_reverse(preg_split('/\R/', trim($output)) ?: array());
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '' || $line[0] !== '{') continue;
+            $decoded = json_decode($line, true);
+            if (is_array($decoded) && isset($decoded['code'])) {
+                return $decoded;
+            }
+        }
+        return null;
     }
 
     /**
@@ -986,7 +1047,6 @@ class gkeep extends eqLogic
 
 		$_version = jeedom::versionAlias($_version);
 		$replace['#calledFrom#'] = __CLASS__;
-        log::add(__CLASS__, 'info', __FUNCTION__ . ' : ' . __('Résultat $_layout ', __FILE__) . $this->getDisplay('layout::' . $_version));
 		switch ($this->getDisplay('layout::' . $_version)) {
 			case 'table':
 				$replace['#eqLogic_class#'] = 'eqLogic_layout_table';
@@ -1064,8 +1124,9 @@ class gkeep extends eqLogic
 		if (!isset(self::$_templateArray[$_version])) {
 			self::$_templateArray[$_version] = getTemplate('core', $_version, 'gkeepEqlogic', __CLASS__);
 		}
-        $html = translate::exec($replace, 'plugins/gkeep/core/template/' . $_version . '/gkeepEqlogic.html');
-		return $this->postToHtml($_version, template_replace($html, self::$_templateArray[$_version]));
+        $html = template_replace($replace, self::$_templateArray[$_version]);
+        $html = translate::exec($html, 'plugins/gkeep/core/template/' . $_version . '/gkeepEqlogic.html');
+		return $this->postToHtml($_version, $html);
 	}
 }
 

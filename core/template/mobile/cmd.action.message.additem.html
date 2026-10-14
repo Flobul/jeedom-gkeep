@@ -136,7 +136,7 @@
 
       function addItem#id#(_change) {
         document.getElementById('div_jeedomLoading').style.display = 'none';
-        $.ajax({
+        domUtils.ajax({
           type: "POST",
           url: "plugins/gkeep/core/ajax/gkeep.ajax.php",
           data: {
@@ -152,7 +152,7 @@
           },
           success: function(data) {
             if (data.state != 'ok') {
-              $.fn.showAlert({
+              jeedomUtils.showAlert({
                 message: data.result,
                 level: 'danger'
               });

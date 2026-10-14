@@ -1,7 +1,7 @@
 {
 	"id": "gkeep",
 	"name": "Google Keep",
-	"pluginVersion": "1.0.2",
+	"pluginVersion": "1.01.0",
 	"description": {
 		"fr_FR": "Plugin permettant de synchroniser ses notes et listes avec Google Keep.</br>Nécéssite python >= v3.8 pour fonctionner.",
 		"en_US": "Plugin for synchronizing notes and lists with Google Keep",
@@ -21,6 +21,8 @@
 	"maxDependancyInstallTime": 0,
 	"changelog": "https://flobul-domotique.fr/liste-des-versions-du-plugin-google-keep-pour-jeedom/",
 	"documentation": "https://flobul-domotique.fr/presentation-et-documentation-du-plugin-google-keep-pour-jeedom/",
+	"changelog_beta": "https://flobul-domotique.fr/liste-des-versions-du-plugin-google-keep-pour-jeedom/",
+	"documentation_beta": "https://flobul-domotique.fr/presentation-et-documentation-du-plugin-google-keep-pour-jeedom/",
 	"link": {
 		"forum": "https://community.jeedom.com/tag/plugin-GKeep"
 	},

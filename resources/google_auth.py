@@ -6,24 +6,37 @@ import signal
 import sys
 
 
+class AuthenticationError(Exception):
+    def __init__(self, code, detail=''):
+        super().__init__(code)
+        self.code = code
+        self.detail = str(detail)[:200]
+
+
 def exchange(payload):
-    import gpsoauth
-    import gkeepapi
+    try:
+        import gpsoauth
+        import gkeepapi
+    except ModuleNotFoundError as error:
+        raise AuthenticationError('dependency_missing', error.name or '') from error
     email = str(payload.get('email', '')).strip()
     cookie = str(payload.get('oauth_token', '')).strip()
     android = str(payload.get('android_id', '')).strip()
     if not email or not cookie or not re.fullmatch(r'[0-9a-fA-F]{16}', android):
-        raise ValueError('invalid input')
+        raise AuthenticationError('invalid_input')
     response = gpsoauth.exchange_token(email, cookie, android)
     token = response.get('Token')
     if not token:
-        raise ValueError('exchange refused')
+        detail = response.get('Error') or response.get('ErrorDetail') or 'no_token'
+        raise AuthenticationError('exchange_refused', detail)
     keep = gkeepapi.Keep()
-    if hasattr(keep, 'authenticate'):
-        keep.authenticate(email, token)
-    else:
-        if not keep.resume(email, token):
-            raise ValueError('Keep refused token')
+    try:
+        if hasattr(keep, 'authenticate'):
+            keep.authenticate(email, token, device_id=android)
+        else:
+            keep.resume(email, token, device_id=android)
+    except Exception as error:
+        raise AuthenticationError('keep_refused', error.__class__.__name__) from error
     return token
 
 
@@ -34,8 +47,11 @@ def main():
         payload = json.loads(sys.stdin.read(32768))
         token = exchange(payload)
         print(json.dumps({'token':token}))
-    except Exception:
-        print(json.dumps({'error':'Authentification Google refusée ou indisponible. Vérifiez les dépendances, le compte et un cookie oauth_token récent.'}))
+    except AuthenticationError as error:
+        print(json.dumps({'error':'authentication_failed', 'code':error.code, 'detail':error.detail}))
+        return 1
+    except Exception as error:
+        print(json.dumps({'error':'authentication_failed', 'code':'unexpected_error', 'detail':error.__class__.__name__}))
         return 1
     finally:
         signal.alarm(0)

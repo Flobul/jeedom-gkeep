@@ -1,10 +1,17 @@
-# Jeedom-gkeep
+# Google Keep pour Jeedom
 
-[![License](https://badgen.net/github/license/Flobul/Jeedom-gkeep?icon=github)](https://github.com/Flobul/Jeedom-gkeep)
-[![Language](https://badgen.net/static/Language/PHP/blue?icon=github)](https://github.com/Flobul/Jeedom-gkeep)
-[![Last commit](https://badgen.net/github/last-commit/Flobul/Jeedom-gkeep?icon=github)](https://github.com/Flobul/Jeedom-gkeep/commits)
-[![Open issues](https://badgen.net/github/open-issues/Flobul/Jeedom-gkeep?icon=github)](https://github.com/Flobul/Jeedom-gkeep/issues)
-[![Open pull requests](https://badgen.net/github/open-prs/Flobul/Jeedom-gkeep?icon=github)](https://github.com/Flobul/Jeedom-gkeep/pulls)
+[![License](https://img.shields.io/badge/License-GPL--2.0-blue?style=flat-square)](https://github.com/Flobul/jeedom-gkeep/blob/HEAD/LICENSE)
+[![Language](https://img.shields.io/badge/Language-PHP-informational?style=flat-square)](https://github.com/Flobul/jeedom-gkeep)
+[![Last commit](https://img.shields.io/badge/Last_commit-14/09/2026-brightgreen?style=flat-square)](https://github.com/Flobul/jeedom-gkeep/commits)
+[![Open issues](https://img.shields.io/badge/Open_issues-0-brightgreen?style=flat-square)](https://github.com/Flobul/jeedom-gkeep/issues)
+[![Open pull requests](https://img.shields.io/badge/Open_pull_requests-0-brightgreen?style=flat-square)](https://github.com/Flobul/jeedom-gkeep/pulls)
+
+<!-- market-badges:start -->
+[![Note](https://img.shields.io/badge/Note-Aucun%20avis-lightgrey?style=flat-square)](https://market.jeedom.com/index.php?v=d&p=market_display&id=4423)
+[![Prix](https://img.shields.io/badge/Prix-Gratuit-brightgreen?style=flat-square)](https://market.jeedom.com/index.php?v=d&p=market_display&id=4423)
+[![Téléchargements](https://img.shields.io/badge/T%C3%A9l%C3%A9chargements-861-informational?style=flat-square)](https://market.jeedom.com/index.php?v=d&p=market_display&id=4423)
+[![Commentaires](https://img.shields.io/badge/Commentaires-0-lightgrey?style=flat-square)](https://market.jeedom.com/index.php?v=d&p=market_display&id=4423)
+<!-- market-badges:end -->
 
 Synchronise ses notes depuis Google Keep.
 Et crée un équipement par note.

@@ -1,0 +1,12 @@
+
+# Local tests and CI tool caches
+/tests/
+/.phpstan-cache/
+/.eslintcache
+/.stylelintcache
+/.coverage
+/coverage.xml
+/.github/ci/vendor/
+/.github/ci/node_modules/
+__pycache__/
+*.py[cod]

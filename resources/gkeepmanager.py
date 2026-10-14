@@ -49,18 +49,20 @@ class GoogleKeepManager:
     ERROR_INVALID_CMD = "Error: Invalid command."
     ERROR_MISSING_USERNAME = "Error: Username is required."
 
-    def __init__(self, username, token):
+    def __init__(self, username, token, device_id=None):
         plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.path = os.path.join(plugin_dir, 'data')
         os.makedirs(self.path, exist_ok=True)
         self.username = username
         self.token = token
+        self.device_id = device_id or None
 
     def get_master_token(self, username, password, valOnly = False):
         try:
             keep = gkeepapi.Keep()
-            if not keep.login(username, password):
-                raise ValueError('login refused')
+            # Keep.login() lève une exception en cas d'échec mais ne retourne
+            # pas de booléen de succès sur les versions récentes de gkeepapi.
+            keep.login(username, password)
             master_token = keep.getMasterToken()
             if valOnly:
                 print(master_token)
@@ -70,12 +72,12 @@ class GoogleKeepManager:
             print(json.dumps({"code": self.CODE_ERROR, "message": "Connexion par mot de passe refusée. Utilisez la connexion Google avec navigateur dans la configuration du plugin."}))
             return False
 
-    @staticmethod
-    def authenticate(keep, username, token):
+    def authenticate(self, keep, username, token):
         if hasattr(keep, 'authenticate'):
-            keep.authenticate(username, token)
+            keep.authenticate(username, token, device_id=self.device_id)
             return True
-        return keep.resume(username, token)
+        keep.resume(username, token, device_id=self.device_id)
+        return True
 
     def detect_file_type(self, file_path):
         file_signatures = {
@@ -685,6 +687,7 @@ def main():
 
     parser.add_argument('--username','-u', required=True, help="Google account username")
     parser.add_argument('--token','-t', help="Google account token")
+    parser.add_argument('--device-id', help="Android device ID associated with the master token")
     parser.add_argument('--command','-c', help="Command to execute")
 
     # Arguments spécifiques à chaque commande
@@ -779,7 +782,7 @@ def main():
 
     args = parser.parse_args()
 
-    manager = GoogleKeepManager(args.username, args.token)
+    manager = GoogleKeepManager(args.username, args.token, args.device_id)
 
     # Vérifier si l'argument --username est fourni
     if not args.username:

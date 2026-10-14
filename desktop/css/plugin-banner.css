@@ -1,0 +1,382 @@
+/* Bandeaux Configuration et Santé : trame de LocalHomeConnect. */
+#configuration_plugin_gkeep .gkeep-config-page {
+    --gkeep-accent: #168db5;
+    --gkeep-accent-dark: #17617d;
+    --gkeep-blue: #1987ea;
+    --gkeep-green: #78b600;
+    --gkeep-card-border: rgba(127, 127, 127, 0.22);
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 12px 8px 32px;
+}
+
+#configuration_plugin_gkeep .gkeep-config-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 28px 30px;
+    border-radius: 16px;
+    color: #202124;
+    background: linear-gradient(125deg, #ffffff 0%, #ffb900 100%);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
+}
+
+#configuration_plugin_gkeep .gkeep-config-hero::after {
+    position: absolute;
+    top: -90px;
+    right: -60px;
+    width: 260px;
+    height: 260px;
+    border: 48px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    content: '';
+}
+
+#configuration_plugin_gkeep .gkeep-config-identity,
+#configuration_plugin_gkeep .gkeep-config-meta,
+#configuration_plugin_gkeep .gkeep-config-links {
+    position: relative;
+    z-index: 1;
+}
+
+#configuration_plugin_gkeep .gkeep-config-identity {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+#configuration_plugin_gkeep .gkeep-config-logo {
+    width: 109px;
+    height: 109px;
+}
+
+#configuration_plugin_gkeep .gkeep-config-logo img {
+    display: block !important;
+    width: auto !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    margin: auto !important;
+    object-fit: contain;
+    transform: translateY(6%);
+}
+
+#configuration_plugin_gkeep .gkeep-config-eyebrow {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.82;
+}
+
+#configuration_plugin_gkeep .gkeep-config-hero h2 {
+    margin: 0 0 5px;
+    color: #202124 !important;
+    font-size: 27px;
+    font-weight: 700;
+}
+
+#configuration_plugin_gkeep .gkeep-config-hero p {
+    max-width: 680px;
+    margin: 0;
+    color: rgba(32, 33, 36, 0.82) !important;
+    font-size: 14px;
+}
+
+#configuration_plugin_gkeep .gkeep-config-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+#configuration_plugin_gkeep .gkeep-config-meta span {
+    padding: 6px 10px;
+    border: 1px solid rgba(32, 33, 36, 0.2);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.55);
+    color: #202124;
+    font-size: 12px;
+}
+
+#configuration_plugin_gkeep .gkeep-config-meta i {
+    margin-right: 5px;
+    opacity: 0.85;
+}
+
+#configuration_plugin_gkeep .gkeep-config-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+#configuration_plugin_gkeep .gkeep-config-links .btn {
+    color: #fff !important;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14);
+}
+
+#configuration_plugin_gkeep .gkeep-config-links .btn:hover {
+    color: #fff !important;
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+#configuration_plugin_gkeep .gkeep-config-link-changelog {
+    border-color: #1474c9 !important;
+    background: #1987ea !important;
+}
+
+#configuration_plugin_gkeep .gkeep-config-link-documentation {
+    border-color: #659b00 !important;
+    background: #78b600 !important;
+}
+
+#configuration_plugin_gkeep .gkeep-config-link-community {
+    border-color: #6250bb !important;
+    background: #7564d5 !important;
+}
+
+#configuration_plugin_gkeep .gkeep-config-logo { flex: 0 0 109px; }
+#configuration_plugin_gkeep .gkeep-config-identity > div:last-child { min-width: 0; overflow-wrap: anywhere; }
+#configuration_plugin_gkeep .gkeep-config-hero::after { pointer-events: none; }
+#configuration_plugin_gkeep .gkeep-config-links a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+@media (max-width: 560px) {
+    #configuration_plugin_gkeep .gkeep-config-page { padding-right: 2px; padding-left: 2px; }
+    #configuration_plugin_gkeep .gkeep-config-hero { padding: 22px 18px; border-radius: 12px; }
+    #configuration_plugin_gkeep .gkeep-config-identity { align-items: flex-start; }
+    #configuration_plugin_gkeep .gkeep-config-logo { flex-basis: 58px; width: 58px; height: 58px; padding: 6px; border-radius: 15px; }
+    #configuration_plugin_gkeep .gkeep-config-hero h2 { font-size: 22px; }
+}
+
+#gkeep-health-banner.gkeep-health-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    overflow: hidden;
+    min-height: 112px;
+    padding: 22px 24px;
+    border-radius: 16px;
+    color: #202124;
+    background: linear-gradient(125deg, #ffffff 0%, #ffb900 100%);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
+}
+
+#gkeep-health-banner.gkeep-health-hero::after {
+    position: absolute;
+    top: -86px;
+    right: 12%;
+    width: 230px;
+    height: 230px;
+    border: 42px solid rgba(255, 255, 255, 0.09);
+    border-radius: 50%;
+    content: '';
+    pointer-events: none;
+}
+
+#gkeep-health-banner .gkeep-health-hero-icon,
+#gkeep-health-banner .gkeep-health-hero-copy,
+#gkeep-health-banner .gkeep-health-refresh {
+    position: relative;
+    z-index: 1;
+}
+
+#gkeep-health-banner .gkeep-health-hero-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 62px;
+    height: 62px;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 17px;
+    background: rgba(0, 0, 0, 0.12);
+    font-size: 29px;
+}
+
+#gkeep-health-banner .gkeep-health-eyebrow {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.82;
+}
+
+#gkeep-health-banner.gkeep-health-hero h2 {
+    margin: 0 0 4px;
+    color: #202124 !important;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+#gkeep-health-banner.gkeep-health-hero p {
+    margin: 0;
+    color: rgba(32, 33, 36, 0.82) !important;
+    font-size: 13px;
+}
+
+#gkeep-health-banner .gkeep-health-refresh {
+    padding: 9px 13px;
+    border: 1px solid rgba(32, 33, 36, 0.25) !important;
+    border-radius: 9px;
+    color: #202124 !important;
+    background: rgba(255, 255, 255, 0.52) !important;
+    font-weight: 600;
+    transition: transform 0.18s ease, background 0.18s ease;
+}
+
+#gkeep-health-banner .gkeep-health-refresh:hover {
+    background: rgba(255, 255, 255, 0.72) !important;
+    transform: translateY(-1px);
+}
+
+#gkeep-health-banner.gkeep-health-hero { box-sizing: border-box; width: 100%; max-width: 1320px; margin: 0 auto 16px; }
+#gkeep-health-banner .gkeep-health-hero-copy { min-width: 0; overflow-wrap: anywhere; }
+#gkeep-health-banner .gkeep-health-refresh:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+@media (max-width: 760px) {
+    #gkeep-health-banner.gkeep-health-hero { grid-template-columns: auto minmax(0, 1fr); padding: 18px; }
+    #gkeep-health-banner .gkeep-health-hero-icon { width: 48px; height: 48px; border-radius: 13px; font-size: 22px; }
+    #gkeep-health-banner.gkeep-health-hero h2 { font-size: 19px; }
+    #gkeep-health-banner .gkeep-health-refresh { grid-column: 1 / -1; width: 100%; }
+}
+
+#configuration_plugin_gkeep .gkeep-config-card {
+    margin-top: 16px;
+    overflow: hidden;
+    border: 1px solid var(--gkeep-card-border);
+    border-radius: 14px;
+    background: rgba(127, 127, 127, 0.08);
+    box-shadow: 0 5px 16px rgba(35, 55, 45, 0.07);
+}
+
+#configuration_plugin_gkeep .gkeep-config-card-header {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--gkeep-card-border);
+    background: linear-gradient(90deg, rgba(120, 182, 0, 0.13), rgba(120, 182, 0, 0.025));
+}
+
+#configuration_plugin_gkeep .gkeep-config-card-header > i {
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: var(--gkeep-green);
+    color: #fff;
+    font-size: 18px;
+}
+
+#configuration_plugin_gkeep .gkeep-config-card-header h3,
+#configuration_plugin_gkeep .gkeep-config-account header h4 {
+    margin: 0;
+    font-weight: 650;
+}
+
+#configuration_plugin_gkeep .gkeep-config-card-header h3 {
+    margin-bottom: 3px;
+    font-size: 17px;
+}
+
+#configuration_plugin_gkeep .gkeep-config-card-header p {
+    margin: 0;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+#configuration_plugin_gkeep .gkeep-config-card-body {
+    padding: 20px 18px 8px;
+}
+
+#configuration_plugin_gkeep .gkeep-config-accounts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 18px;
+}
+
+#configuration_plugin_gkeep .gkeep-config-account {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--gkeep-card-border);
+    border-radius: 12px;
+    background: rgba(127, 127, 127, 0.055);
+}
+
+#configuration_plugin_gkeep .gkeep-config-account > header {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--gkeep-card-border);
+}
+
+#configuration_plugin_gkeep .gkeep-config-account > header i {
+    color: #4285f4;
+    font-size: 17px;
+}
+
+#configuration_plugin_gkeep .gkeep-config-account header h4 {
+    font-size: 15px;
+}
+
+#configuration_plugin_gkeep .gkeep-config-account-body {
+    padding: 16px 13px 5px;
+}
+
+#configuration_plugin_gkeep .gkeep-browser-fields {
+    display: grid;
+    gap: 9px;
+}
+
+#configuration_plugin_gkeep .gkeep-legacy-login {
+    width: 34px;
+}
+
+#configuration_plugin_gkeep .control-label {
+    font-size: 14px;
+    font-weight: normal;
+}
+
+@media (max-width: 900px) {
+    #configuration_plugin_gkeep .gkeep-config-accounts {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Harmonisation de l’alignement des métadonnées (trame Creality Box). */
+#configuration_plugin_gkeep .gkeep-config-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 18px 28px;
+}
+
+#configuration_plugin_gkeep .gkeep-config-meta {
+    align-self: center;
+    justify-content: flex-end;
+    margin-top: 0;
+}
+
+#configuration_plugin_gkeep .gkeep-config-links {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 760px) {
+    #configuration_plugin_gkeep .gkeep-config-hero {
+        grid-template-columns: 1fr;
+    }
+
+    #configuration_plugin_gkeep .gkeep-config-meta {
+        justify-content: flex-start;
+    }
+}
