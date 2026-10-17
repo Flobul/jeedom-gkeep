@@ -11,7 +11,7 @@
 		"it_IT": "Plugin per la sincronizzazione di note ed elenchi con Google Keep"
 	},
 	"utilization": "Sélectionnez le nombre de comptes Google, entrez les informations de connexion de chacun d'entre eux, puis lancez une première connexion.",
-	"licence": "AGPL",
+	"licence": "GPL-3.0",
 	"author": "DomoFlo1",
 	"require": "4.4",
 	"category": "organization",
