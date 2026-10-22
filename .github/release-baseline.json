@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "plugin_id": "gkeep",
+  "class_file": "core/class/gkeep.class.php",
+  "reference_version": "1.01.0",
+  "reference_commit": "176a8e325ff23a81a5fc7c9ffdcabc89323d8c68"
+}

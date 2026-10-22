@@ -8,7 +8,7 @@ while IFS= read -r path; do paths+=("$path"); done < <(
 )
 if [ "${#paths[@]}" -eq 0 ]; then echo "PHPStan: not applicable"; exit 0; fi
 set +e
-.github/ci/vendor/bin/phpstan analyse -c .github/ci/phpstan.neon --no-progress --error-format=github "${paths[@]}"
+php -d memory_limit=3G .github/ci/vendor/bin/phpstan analyse -c .github/ci/phpstan.neon --no-progress --error-format=github "${paths[@]}"
 status=$?
 set -e
 if [ "$status" -eq 0 ]; then echo "PHPStan: passed"; exit 0; fi
