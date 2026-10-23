@@ -160,7 +160,7 @@ jobs:
           persist-credentials: false
 
       - name: Download reviewed release plan
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: release-plan-${{ needs.plan.outputs.version }}-${{ github.run_id }}
           path: ${{ runner.temp }}/release-plan
