@@ -250,7 +250,7 @@ jobs:
           print(json.dumps({
               "event_type": "jeedom_plugin_release",
               "client_payload": {
-                  "folder": "jeedom-bosch_ebike",
+                  "folder": "jeedom-gkeep",
                   "repository": os.environ["GITHUB_REPOSITORY"],
                   "tag": os.environ["TAG"],
                   "version": os.environ["VERSION"],
