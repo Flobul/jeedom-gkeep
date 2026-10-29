@@ -37,7 +37,13 @@
       jeedom.cmd.addUpdateFunction('#id#',function(_options) {
         if (is_object(cmd = document.querySelector('.cmd[data-cmd_uid="#uid#"]'))) {
           cmd.setAttribute('title', '{{Date de valeur}}: ' + _options.valueDate + '<br>{{Date de collecte}}: ' + _options.collectDate)
-          cmd.querySelector('.stateText').innerHTML = _options.display_value + _options.unit;
+          var stateText = cmd.querySelector('.stateText');
+          var value = _options.display_value;
+          if (typeof value === 'string' && value.startsWith('"') && value.endsWith('"')) {
+            try { value = JSON.parse(value); } catch (error) { value = value.slice(1, -1); }
+          }
+          stateText.textContent = value + (_options.unit || '');
+          stateText.dataset.original = stateText.textContent;
           if (_options.alertLevel) {
             if (_options.alertLevel == 'warning') {
               cmd.classList.add('label', 'label-warning');
@@ -55,7 +61,7 @@
       jeedom.cmd.refreshValue([{cmd_id :'#id#',display_value: '#state#', valueDate: '#valueDate#', collectDate: '#collectDate#', alertLevel: '#alertLevel#', unit: '#unite#'}])
 
       document.querySelector('.cmd[data-cmd_uid=#uid#] .stateText').addEventListener('input', function(event) {
-        if (event.target.innerHTML !== '#state#') {
+        if (event.target.innerText !== event.target.dataset.original) {
           document.querySelector('.cmd[data-cmd_uid=#uid#] .sendButton').style.display = 'block';
         } else {
           document.querySelector('.cmd[data-cmd_uid=#uid#] .sendButton').style.display = 'none';
@@ -63,8 +69,8 @@
       });
 
       document.querySelector('.cmd[data-cmd_uid=#uid#] .sendButton').addEventListener('click', function(event) {
-          if (document.querySelector('.cmd[data-cmd_uid=#uid#] .stateText').innerHTML != '') {
-              updateNote#id#({text: document.querySelector('.cmd[data-cmd_uid=#uid#] .stateText').innerHTML});
+          if (document.querySelector('.cmd[data-cmd_uid=#uid#] .stateText').innerText != '') {
+              updateNote#id#({text: document.querySelector('.cmd[data-cmd_uid=#uid#] .stateText').innerText});
           }
       });
       function updateNote#id#(_change) {
@@ -82,16 +88,14 @@
             handleAjaxError(request, status, error);
           },
           success: function(data) {
-            if (data.state != 'ok') {
+            if (data.state != 'ok' || !data.result || data.result.code !== 0) {
               jeedomUtils.showAlert({
-                message: data.result,
+                message: data.result?.message || data.result,
                 level: 'danger'
               });
               return;
             }
-            if (data.code == 0) {
-                jeedom.cmd.refreshValue([{cmd_id :'#id#',display_value: _change.text}]);
-            }
+            document.querySelector('.cmd[data-cmd_uid=#uid#] .sendButton').style.display = 'none';
           }
         })
       }

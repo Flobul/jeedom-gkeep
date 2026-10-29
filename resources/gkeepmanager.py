@@ -2,7 +2,7 @@
 
 """
 Auteur: Flobul <flobul.jeedom@gmail.com>
-Version: 1.3
+Version: 1.4
 Description: This script manages Google Keep notes using the gkeepapi library. It allows you to interact with your Google Keep account, create, retrieve, update, and delete notes, as well as manage labels and annotations. The script uses the keyring library to securely store authentication credentials. It provides a command-line interface with various options for performing different operations on your Google Keep notes.
 """
 
@@ -12,7 +12,9 @@ import urllib.request
 import argparse
 import os
 import mimetypes
-import time
+import re
+import sys
+import logging
 
 class GoogleKeepManager:
     CODE_SUCCESS = 0
@@ -180,7 +182,7 @@ class GoogleKeepManager:
 
         return None
 
-    def get_notes(self, note_id=None):
+    def get_notes(self, note_id=None, blob_note_ids=None):
         #master_token = self.get_master_token()
         master_token = self.token
         if master_token:
@@ -222,7 +224,7 @@ class GoogleKeepManager:
                     note_json = []
                     for note in gnotes:
                         annotations = [annotation.save() for annotation in note.annotations.all()]
-                        blobs = self.process_blobs(note.blobs, keep, note)
+                        blobs = self.process_blobs(note.blobs, keep, note) if blob_note_ids is None or str(note.id) in blob_note_ids else []
                         note_dict = {
                             "id": note.id,
                             "type": note.type.name,
@@ -253,19 +255,24 @@ class GoogleKeepManager:
     def process_blobs(self, blobs, keep, note):
         result = []
         for idx, blob in enumerate(blobs):
-            url = keep.getMediaLink(blob)
-            #file_name = f"{note.id}_{int(time.time())}"
-            file_name = f"{note.id}_{int(note.timestamps.edited.timestamp())}"
+            file_name = f"{re.sub(r'[^A-Za-z0-9._-]', '_', str(note.id))}_{int(note.timestamps.edited.timestamp())}_{idx}"
             file = os.path.join(self.path, file_name)
             try:
+                url = keep.getMediaLink(blob)
                 urllib.request.urlretrieve(url, file)
-            except Exception as e:
-                logging.error(f"Error downloading blob file: {e}")
+            except Exception:
+                logging.warning("Attachment %d download failed", idx)
+                if os.path.isfile(file):
+                    os.remove(file)
                 continue
 
             if os.path.isfile(file):
                 mime_type = self.detect_file_type(file)
-                extension = mimetypes.guess_extension(mime_type)
+                extension = mimetypes.guess_extension(mime_type) if mime_type else None
+                if not extension:
+                    logging.warning("Unsupported media type for note %s attachment %d", note.id, idx)
+                    os.remove(file)
+                    continue
                 os.rename(file, file + extension)
                 blob_dict = {
                     "url": url,
@@ -695,11 +702,12 @@ def main():
 
     # Commande "get_master_token"
     parser_get_master_token = subparsers.add_parser("get_master_token", help="Get master token")
-    parser_get_master_token.add_argument("--password", required=True, help="Google account password")
+    parser_get_master_token.add_argument("--password", help="Google account password (legacy CLI)")
 
     # Commande "get_notes"
     parser_get_notes = subparsers.add_parser("get_notes", help="Get notes")
     parser_get_notes.add_argument("--note_id", help="ID of the note to restore")
+    parser_get_notes.add_argument("--blob-note-ids", type=json.loads, help="Only download attachments for these note IDs")
 
     # Commande "create_note"
     parser_create_note = subparsers.add_parser("create_note", help="Create a new note or list")
@@ -780,6 +788,18 @@ def main():
     parser_add_label = subparsers.add_parser("create_label", help="Get labels")
     parser_add_label.add_argument("name", help="Name of the label to add")
 
+    if sys.argv[1:] == ['--request-stdin']:
+        try:
+            request = json.load(sys.stdin)
+            if not isinstance(request, dict):
+                raise ValueError("Invalid request")
+            arguments = request['args']
+            if not isinstance(arguments, list) or not all(isinstance(arg, str) for arg in arguments):
+                raise ValueError("Invalid request arguments")
+            sys.argv = [sys.argv[0], *arguments]
+        except (ValueError, TypeError, KeyError):
+            print(json.dumps({"code": -1, "message": "Invalid request input"}))
+            return
     args = parser.parse_args()
 
     manager = GoogleKeepManager(args.username, args.token, args.device_id)
@@ -793,13 +813,16 @@ def main():
         manager.master_token = args.token
     # Exécuter la commande appropriée en fonction des arguments fournis
     if args.command == "get_master_token":
+        if not args.password:
+            print(json.dumps({"code": -1, "message": "Password is required"}))
+            return
         manager.get_master_token(args.username, args.password)
         #manager.get_master_token(True)
     elif args.command == "get_notes":
         if hasattr(args, 'note_id') and args.note_id:
-            manager.get_notes(args.note_id)
+            manager.get_notes(args.note_id, args.blob_note_ids)
         else:
-            manager.get_notes()
+            manager.get_notes(blob_note_ids=args.blob_note_ids)
     elif args.command == "create_note":
         if args.list:
             list_items = []

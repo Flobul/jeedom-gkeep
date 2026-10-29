@@ -167,6 +167,8 @@
         "Supprimé": "Deleted",
         "Synchronisation en cours": "Synchronization in progress",
         "Synchronisation terminée": "Synchronization complete",
+        "Synchronisation partielle : consultez le journal gkeep.": "Partial synchronization: check the gkeep log.",
+        "Aucun compte Google Keep synchronisé. Consultez le journal gkeep.": "No Google Keep account was synchronized. Check the gkeep log.",
         "Tester": "Test",
         "Unité": "Unit",
         "Valeur de l\\'information": "Information value",

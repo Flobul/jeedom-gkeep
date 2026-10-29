@@ -19,6 +19,8 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Syntax, inline scripts and CSS structure
         run: python3 .github/ci/frontend_check.py
+      - name: Widget content is rendered as text
+        run: node .github/ci/functional/widget_sinks.test.js
       - name: ESLint maintained JavaScript
         run: bash .github/ci/run_eslint.sh
       - name: Optional existing Prettier coverage

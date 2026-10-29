@@ -2,6 +2,17 @@
 
 ## Non publié
 
+## Version 1.2.0 (29/10/2026)
+
+- La synchronisation signale désormais les comptes en erreur au lieu d'annoncer une réussite lorsque les notes n'ont pas été récupérées.
+- Les tuiles des équipements activés ne sont plus grisées à tort et la page de configuration affiche « Nom de la note ».
+- Les noms de notes accentués hérités d'un ancien encodage sont réparés sans écraser les noms personnalisés.
+- Les retours à la ligne et les caractères HTML des notes restent du texte dans le widget et dans Google Keep.
+- Le journal de diagnostic n'affiche plus le contenu des notes ni des modifications.
+- Les éléments de liste et les noms d'équipements s'affichent comme du texte, sans interpréter de code HTML ; les identifiants de connexion ne passent plus dans la ligne de commande.
+- Les équipements ne sont plus supprimés automatiquement si une réponse Google Keep est incomplète ; une note supprimée reste donc à retirer manuellement de Jeedom.
+- Les listes vidées conservent l'action d'ajout sans afficher d'anciens éléments ; les pièces jointes d'une même note gardent des fichiers distincts.
+- Le rafraîchissement programmé récupère les notes une fois par compte et n'actualise que les équipements activés déjà présents.
 - Noms des nouveaux équipements compatibles avec les colonnes UTF-8 Jeedom : caractères Unicode sur quatre octets représentés par leur code, sans modifier les notes Google.
 - Synchronisation des notes sans liste : suppression du count(null) qui interrompait le traitement sous PHP 8.
 - Aide détaillée pour récupérer oauth_token lorsque la page Google reste en chargement.

@@ -23,6 +23,12 @@ if (!isConnect('admin')) {
 }
 $plugin = plugin::byId('gkeep');
 sendVarToJS('eqType', $plugin->getId());
+$syncWarningKey = 'gkeep::syncWarning::' . $_SESSION['user']->getId();
+$syncWarning = cache::byKey($syncWarningKey)->getValue(0);
+if ($syncWarning) {
+    cache::delete($syncWarningKey);
+}
+sendVarToJS('gkeepSyncWarning', $syncWarning ? '1' : '0');
 $eqLogics = eqLogic::byType($plugin->getId());
 
 ?>
@@ -91,10 +97,10 @@ $eqLogics = eqLogic::byType($plugin->getId());
             <fieldset>
               <div class="form-group">
                 <legend><i class="fas fa-sitemap icon_green"></i> {{Général}}</legend>
-                <label class="col-sm-4 control-label">{{Nom du vidéoprojecteur}}</label>
+                <label class="col-sm-4 control-label">{{Nom de la note}}</label>
                 <div class="col-sm-5">
                   <input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;" />
-                  <input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom de la box}}" />
+                  <input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom de la note}}" />
                 </div>
               </div>
               <div class="form-group">
@@ -105,7 +111,7 @@ $eqLogics = eqLogic::byType($plugin->getId());
                     <?php
                       $options = '';
                       foreach ((jeeObject::buildTree(null, false)) as $object) {
-                          $options .= '<option value="' . $object->getId() . '">' . str_repeat('&nbsp;&nbsp;', $object->getConfiguration("parentNumber")) . $object->getName() . '</option>';
+                          $options .= '<option value="' . (int)$object->getId() . '">' . str_repeat('&nbsp;&nbsp;', (int)$object->getConfiguration("parentNumber")) . $object->getName() . '</option>';
                       }
                       echo $options;
                     ?>

@@ -88,18 +88,18 @@ class gkeep_display extends eqLogic
             if ($eqLogic->getConfiguration($option, false) === $val) {
                 $visibleInfo = ($eqLogic->getIsVisible() == 1) ? '<i class="fas fa-eye" title="{{Équipement visible}}"></i>' : '<i class="fas fa-eye-slash" title="{{Équipement non visible}}"></i>';
                 //$additionalInfo = ($eqLogic->getConfiguration('pinned') === true) ? '<i class="fas fa-map-pin colored" title="{{Épinglé}}"></i>' : '<i class="fas fa-map-pin" title="{{Autre}}"></i>';
-                $title = '{{Type}} : ' . ($eqLogic->getConfiguration('type')=='List'?'{{Liste}}':$eqLogic->getConfiguration('type'));
+                $title = '{{Type}} : ' . htmlspecialchars((string)($eqLogic->getConfiguration('type')=='List'?'{{Liste}}':$eqLogic->getConfiguration('type')), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
                 $title .= '</br>{{État}} : ' . (($eqLogic->getIsVisible() == 1)?'{{Visible}}':'{{Masqué}}');
                 $title .= $eqLogic->getConfiguration('pinned')?'</br>{{Statut}} : {{Épinglé}}':'';
                 $title .= $eqLogic->getConfiguration('archived')?'</br>{{Statut}} : {{Archivé}}':'';
                 $title .= $eqLogic->getConfiguration('trashed')?'</br>{{Statut}} : {{Supprimé}}':'';
 
                 $opacity = ($eqLogic->getIsEnable()) ? '' : 'disableCard';
-                echo '            <div title="'.$title.'" class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $eqLogic->getId() . '" data-account="' . $eqLogic->getConfiguration('account') . '">';
+                echo '            <div title="'.$title.'" class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . (int)$eqLogic->getId() . '" data-account="' . htmlspecialchars((string)$eqLogic->getConfiguration('account'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">';
                 echo '                <span class="hiddenAsTable"></span>';
-                echo '                <img class="imgColorFilter_' . $eqLogic->getConfiguration('color', 'DEFAULT') . '" src="' . $eqLogic->getImage()['img'] . '"/>';
+                echo '                <img class="imgColorFilter_' . preg_replace('/[^A-Za-z0-9_-]/', '', (string)$eqLogic->getConfiguration('color', 'DEFAULT')) . '" src="' . htmlspecialchars((string)$eqLogic->getImage()['img'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '"/>';
                 echo '                <br>';
-                echo '                <span class="name">' . $eqLogic->getHumanName(true, true) . '</span>';
+                echo '                <span class="name">' . (string)$eqLogic->getHumanName(true, true) . '</span>';
                 echo '                <span class="hidden hiddenAsCard displayTableRight">' . $visibleInfo . '</span>';
                 echo '            </div>';
             }

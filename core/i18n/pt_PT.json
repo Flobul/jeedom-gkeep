@@ -167,6 +167,8 @@
         "Supprimé": "Eliminado",
         "Synchronisation en cours": "Sincronização em curso",
         "Synchronisation terminée": "Sincronização completa",
+        "Synchronisation partielle : consultez le journal gkeep.": "Sincronização parcial: consulte o registo do gkeep.",
+        "Aucun compte Google Keep synchronisé. Consultez le journal gkeep.": "Nenhuma conta Google Keep foi sincronizada. Consulte o registo do gkeep.",
         "Tester": "Testar",
         "Unité": "Unidade",
         "Valeur de l\\'information": "Valor da informação",

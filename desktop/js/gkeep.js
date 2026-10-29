@@ -14,7 +14,10 @@
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-const commandTableBody = document.querySelector('#table_cmd tbody');
+var commandTableBody = document.querySelector('#table_cmd tbody');
+if (window.gkeepSyncWarning === '1') {
+  jeedomUtils.showAlert({message: '{{Synchronisation partielle : consultez le journal gkeep.}}', level: 'warning'});
+}
 if (commandTableBody && typeof Sortable !== 'undefined') {
   new Sortable(commandTableBody, {draggable: '.cmd', handle: '.cmd', animation: 150});
 }
@@ -113,10 +116,10 @@ jeedom.config.load({
       jeedomUtils.showAlert({message: error.message, level: 'danger'});
     },
     success: function (data) {
-      for (var i = 0; i < data.length; i++) {
-        updateLogoSelectGkeep(data[i].value, data[i].state);
-        hideDisplayCard(data[i].value, data[i].state);
+      for (var account of (Array.isArray(data) ? data : [])) {
+        updateLogoSelectGkeep(account.value, account.state);
       }
+      applyAccountFilters();
     }
   });
   jeedom.eqLogic.byType({
@@ -132,17 +135,20 @@ jeedom.config.load({
     }
   });
 
-function hideDisplayCard(_account, _state) {
-  document.querySelectorAll('.eqLogicDisplayCard[data-account="' + CSS.escape(String(_account)) + '"]').forEach(card => {
-    card.style.display = _state != '0' && _state != 0 ? '' : 'none';
+function applyAccountFilters() {
+  var selected = Array.from(document.querySelectorAll('.logoSelectGkeep'))
+    .filter(button => button.dataset.state === '1')
+    .map(button => button.dataset.value);
+  document.querySelectorAll('.eqLogicDisplayCard').forEach(card => {
+    card.style.display = selected.length === 0 || selected.includes(card.dataset.account) ? '' : 'none';
   });
 }
 
 function updateLogoSelectGkeep(_val, _state) {
-    const selector = '.eqLogicThumbnailContainer .logoSelectGkeep[data-value="' + CSS.escape(String(_val)) + '"]';
+    var selector = '.eqLogicThumbnailContainer .logoSelectGkeep[data-value="' + CSS.escape(String(_val)) + '"]';
     document.querySelectorAll(selector).forEach(element => {
       element.dataset.state = _state;
-      const icon = element.querySelector('i');
+      var icon = element.querySelector('i');
       if (icon) {
         icon.classList.toggle('fa-user', parseInt(_state) === 1);
         icon.classList.toggle('fa-user-alt-slash', parseInt(_state) !== 1);
@@ -153,13 +159,13 @@ function updateLogoSelectGkeep(_val, _state) {
 function updateDisplayCard(_card, _eq) {
 	if (!_card) return;
 	// Set visibility
-    _card.classList.toggle('disableCard', _eq.isEnable !== '1');
+    _card.classList.toggle('disableCard', ![1, '1', true].includes(_eq.isEnable));
     var asTable = '';
   	asTable += asTableHelper(_eq, 'visible', 'fas fa-eye', 'fas fa-eye-slash');
 	asTable += asTableHelper(_eq, 'pinned', 'fas fa-map-pin', 'fas fa-map-pin');
 	asTable += asTableHelper(_eq, 'archived', 'fas fa-archive', 'fas fa-archive');
 	asTable += asTableHelper(_eq, 'trashed', 'fas fa-trash', 'fas fa-trash');
-	const tableStatus = _card.querySelector('span.hiddenAsTable');
+	var tableStatus = _card.querySelector('span.hiddenAsTable');
 	if (tableStatus) tableStatus.innerHTML = asTable;
 
 	var asCard = '';
@@ -169,7 +175,7 @@ function updateDisplayCard(_card, _eq) {
 	asCard += asCardHelper(_eq, 'archived', '{{Archivé}}', '{{Non archivé}}', 'fas fa-archive',  'fas fa-archive');
 	asCard += asCardHelper(_eq, 'trashed', '{{Supprimé}}', '{{En cours}}', 'fas fa-trash', 'fas fa-trash');
 	asCard += '<a class="btn btn-xs cursor roundedRight"><i class="fas fa-cogs eqLogicAction tooltips" title="{{Configuration avancée}}" data-action="confEq"></i></a>';
-	const cardStatus = _card.querySelector('span.hiddenAsCard');
+	var cardStatus = _card.querySelector('span.hiddenAsCard');
 	if (cardStatus) cardStatus.innerHTML = asCard;
 
 	_card.querySelector('.eqLogicAction[data-action="confEq"]')?.addEventListener('click', function() {
@@ -275,7 +281,7 @@ function printEqLogic(_eqLogic) {
         return;
       }
       if (data.result != '') {
-        const image = document.getElementById('img_device');
+        var image = document.getElementById('img_device');
         if (image) {
           image.src = data.result.img;
           image.classList.add('imgColorFilter_' + data.result.color);
@@ -308,21 +314,24 @@ function synchronize() {
     },
     dataType: 'json',
     error: function(request, status, error) {
+      document.querySelector('#bt_synchronizegkeep > i.fas')?.classList.remove('fa-spin');
       handleAjaxError(request, status, error);
     },
     success: function(data) {
+      document.querySelector('#bt_synchronizegkeep > i.fas')?.classList.remove('fa-spin');
       if (data.state != 'ok') {
         jeedomUtils.showAlert({
           message: data.result,
           level: 'danger'
         });
-        //return;
+        return;
+      } else if (data.result.failedAccounts > 0) {
+        window.location.reload();
       } else {
         jeedomUtils.showAlert({
           message: '{{Synchronisation terminée}}',
           level: 'success'
         });
-        document.querySelector('#bt_synchronizegkeep > i.fas')?.classList.remove('fa-spin');
         window.location.reload();
       }
     }
@@ -383,7 +392,7 @@ document.querySelectorAll('.logoSelectGkeep').forEach(element => element.addEven
         },
         success: function (data) {
             updateLogoSelectGkeep(value, newState);
-            hideDisplayCard(value, newState);
+            applyAccountFilters();
 		}
 	});
 }));

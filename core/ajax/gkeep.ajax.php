@@ -36,7 +36,12 @@ try {
     }
 
     if (init('action') == 'synchronize') {
+        $syncWarningKey = 'gkeep::syncWarning::' . $_SESSION['user']->getId();
+        cache::delete($syncWarningKey);
         $result = gkeep::synchronize();
+        if ($result['failedAccounts'] > 0) {
+            cache::set($syncWarningKey, 1, 60);
+        }
         ajax::success($result);
     }
 

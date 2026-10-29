@@ -28,7 +28,7 @@ class gkeep extends eqLogic
      *
      * @var string
      */
-    public static $_pluginVersion = '1.01.0';
+    public static $_pluginVersion = '1.2.0';
 
     /**
      * Tableau des templates.
@@ -95,10 +95,16 @@ class gkeep extends eqLogic
                 $c = new Cron\CronExpression($autorefresh, new Cron\FieldFactory);
                 if ($c->isDue()) {
                     try {
+                        $hasEnabledEquipment = false;
                         foreach (eqLogic::byType(__CLASS__) as $eqLogic) {
                             if ($eqLogic->getIsEnable()) {
-                                $eqLogic->refresh();
+                                $hasEnabledEquipment = true;
+                                break;
                             }
+                        }
+                        if ($hasEnabledEquipment) {
+                            $status = array();
+                            self::getNotes(false, null, $status, true);
                         }
                     } catch (Exception $exc) {
                         log::add(__CLASS__, 'error', __('Erreur : ', __FILE__) . $exc->getMessage());
@@ -119,9 +125,13 @@ class gkeep extends eqLogic
     public static function synchronize()
     {
         log::add(__CLASS__, 'debug', __FUNCTION__ . ' : ' . __('début', __FILE__));
-        $result = self::getNotes();
+        $status = array();
+        $result = self::getNotes(false, null, $status);
+        if ($status['successfulAccounts'] === 0) {
+            throw new RuntimeException(__('Aucun compte Google Keep synchronisé. Consultez le journal gkeep.', __FILE__));
+        }
         log::add(__CLASS__, 'debug', __FUNCTION__ . ' : ' . __('fin', __FILE__));
-        return $result;
+        return array('notes' => $result, 'failedAccounts' => $status['failedAccounts']);
     }
 
     /**
@@ -273,7 +283,7 @@ class gkeep extends eqLogic
      */
     public static function addNote($_object, $_account)
     {
-        log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . $_account . ' ' . json_encode($_object));
+        log::add(__CLASS__, 'debug', __FUNCTION__ . ' : création demandée');
         $cmd = array('--username', (string) $_account, '--token', (string) gkeep::getTokenByUsername($_account), 'create_note');
         foreach (array('text', 'title', 'color', 'labels', 'annotations', 'collaborators') as $option) {
             if (isset($_object[$option])) {
@@ -304,28 +314,52 @@ class gkeep extends eqLogic
      *
      * @return array Les notes récupérées.
      */
-    public static function getNotes($_id = false, $_account = null)
+    public static function getNotes($_id = false, $_account = null, ?array &$status = null, bool $enabledOnly = false)
     {
         log::add(__CLASS__, 'debug', __FUNCTION__ . ' : ' . __('début', __FILE__) . ' ' . $_id . ' & ' . $_account);
         $result = array();
+        $status = array('successfulAccounts' => 0, 'failedAccounts' => 0);
         $emails = config::byKey('email', __CLASS__, array());
         $tokens = config::byKey('token', __CLASS__, array());
+        $enabledAccounts = array();
+        $enabledNoteIds = array();
+        if ($enabledOnly) {
+            foreach (eqLogic::byType(__CLASS__) as $eqLogic) {
+                if ($eqLogic->getIsEnable()) {
+                    $account = (string)$eqLogic->getConfiguration('account');
+                    $enabledAccounts[$account] = true;
+                    $enabledNoteIds[$account][] = (string)$eqLogic->getLogicalId();
+                }
+            }
+        }
         for ($i = 1; $i <= config::byKey('max_account_number', __CLASS__); $i++) {
             $email = (string)($emails[$i] ?? '');
             if ($_account && $_account != $email) continue;
+            if ($enabledOnly && !isset($enabledAccounts[$email])) continue;
             if ($email === '') {
                 log::add(__CLASS__, 'warning', __('Adresse email manquante pour le compte ', __FILE__) . $i);
                 continue;
             }
             if (empty($tokens[$i])) {
-                self::login($i);
+                try {
+                    self::login($i);
+                } catch (Throwable $exc) {
+                    $status['failedAccounts']++;
+                    log::add(__CLASS__, 'warning', __('Synchronisation Google Keep ignorée : ', __FILE__) . $email . ' (authentification)');
+                    continue;
+                }
                 $tokens = config::byKey('token', __CLASS__, array());
             }
             if (empty($tokens[$i])) {
+                $status['failedAccounts']++;
                 log::add(__CLASS__, 'warning', __('Aucun jeton Google Keep disponible pour ', __FILE__) . $email);
                 continue;
             }
             $cmd = array('--username', $email, '--token', (string)$tokens[$i], 'get_notes');
+            if ($enabledOnly) {
+                $cmd[] = '--blob-note-ids';
+                $cmd[] = json_encode($enabledNoteIds[$email], JSON_THROW_ON_ERROR);
+            }
             if ($_id) {
                 $cmd[] = '--note_id';
                 $cmd[] = (string) $_id;
@@ -333,53 +367,26 @@ class gkeep extends eqLogic
 
             $return = self::sendCmdAndFormatResult($cmd);
             if (!is_array($return) || (int)($return['code'] ?? -1) !== 0 || !isset($return['result']) || !is_array($return['result'])) {
+                $status['failedAccounts']++;
                 log::add(__CLASS__, 'warning', __('Synchronisation Google Keep ignorée : ', __FILE__) . ($return['message'] ?? __('réponse invalide', __FILE__)));
                 continue;
             }
+            $status['successfulAccounts']++;
             if ($_id) {
                 $result[] = self::checkAndCreateEquipementAndCmd($return['result'], $email);
             } else {
                 foreach ($return['result'] as $note) {
+                    if ($enabledOnly) {
+                        $existing = self::byLogicalId($note['id'], __CLASS__);
+                        if (!is_object($existing) || !$existing->getIsEnable() || (string)$existing->getConfiguration('account') !== $email) continue;
+                    }
                     $result[] = self::checkAndCreateEquipementAndCmd($note, $email);
                 }
-                self::removeOldEqlogic($return['result'], $email);
             }
         }
         return $result;
     }
 
-    /**
-     * Supprime les anciens équipements qui ne correspondent plus aux notes spécifiées des comptes indiqués.
-     *
-     * @param array $_notes Les notes actuelles.
-     *
-     * @return void
-     */
-    public static function removeOldEqlogic(array $_notes, string $_account)
-    {
-        if (count($_notes) < 1) return;
-        $eqLogicsToRemove = array();
-        foreach (eqLogic::byType(__CLASS__) as $eqLogic) {
-            $found = false;
-            if ($eqLogic->getConfiguration('account') != $_account) { //autre compte, donc on passe
-                $found = true;
-                continue;
-            }
-            foreach ($_notes as $note) {
-                if ($eqLogic->getLogicalId() == $note['id']) { // on cherche les notes existantes
-                    $found = true;
-                    break;
-                }
-            }
-            if (!$found) { // et on compte les non existantes
-                $eqLogicsToRemove[] = $eqLogic;
-            }
-        }
-        foreach ($eqLogicsToRemove as $eqLogic) {
-            log::add(__CLASS__, 'debug', __FUNCTION__ . ' : ' . __('Suppression de la note ', __FILE__) . $eqLogic->getLogicalId() . ' ' . $eqLogic->getName());
-            $eqLogic->remove();
-        }
-    }
 
     /**
      * Compare les équipements et trie en fonction de la valeur de pinned/archived et de sort.
@@ -466,11 +473,21 @@ class gkeep extends eqLogic
         return $name;
     }
 
+    /** Répare uniquement les anciens noms issus d'un JSON Unicode dont Jeedom a retiré les antislashs. */
+    public static function restoreLegacyEquipmentName(string $name, string $title) : string
+    {
+        $encodedTitle = json_encode($title);
+        if ($encodedTitle !== false && $name === trim(cleanComponanteName($encodedTitle))) {
+            return self::equipmentNameFromTitle($title);
+        }
+        return $name;
+    }
+
     public static function checkAndCreateEquipementAndCmd($_note, $_account = null)
     {
-        log::add(__CLASS__, 'debug', __FUNCTION__ . ' : ' . __('début', __FILE__) . json_encode($_note));
+        log::add(__CLASS__, 'debug', __FUNCTION__ . ' : ' . __('début', __FILE__) . ' id=' . ($_note['id'] ?? '') . ' type=' . ($_note['type'] ?? ''));
         if ($_note['id'] == '') {
-            throw new Exception(__('ID vide, pas d\'équipement créé : ', __FILE__) . json_encode($_note));
+            throw new Exception(__('ID vide, pas d\'équipement créé : ', __FILE__) . ($_note['type'] ?? ''));
         }
         $_note['title'] = ($_note['title'] == '') ? __("Sans titre", __FILE__):$_note['title'];
         $eqLogic = self::byLogicalId($_note['id'], __CLASS__);
@@ -488,6 +505,11 @@ class gkeep extends eqLogic
                 'page' => __CLASS__,
                 'message' => __('L\'équipement ', __FILE__) . $eqLogic->getHumanName() . __(' vient d\'être créé', __FILE__),
             ));
+        } else {
+            $restoredName = self::restoreLegacyEquipmentName($eqLogic->getName(), $_note['title']);
+            if ($restoredName !== $eqLogic->getName()) {
+                $eqLogic->setName($restoredName);
+            }
         }
         $eqLogic->setConfiguration('account', $_account);
         $eqLogic->setDisplay('widgetTmpl', 1);
@@ -536,7 +558,7 @@ class gkeep extends eqLogic
         log::add(__CLASS__, 'debug', __FUNCTION__ . ' : ' . __('début', __FILE__) . " save object " . $listCount);
 
         // DEBUT des Listes
-        if ($listCount > 0) {
+        if (isset($_note['list']) && is_array($_note['list'])) {
             $nbList = $listCount;
             $uncheckedCmds = [];
             $checkedCmds = [];
@@ -644,7 +666,7 @@ class gkeep extends eqLogic
                 $cmdText->setConfiguration('sort', $_note['sort']);
                 $cmdText->save();
             }
-            $cmdText->event(json_encode($_note['text'], JSON_UNESCAPED_UNICODE));
+            $cmdText->event(json_encode($_note['text'], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP));
         }
         // FIN des Notes
 
@@ -709,25 +731,39 @@ class gkeep extends eqLogic
      */
     private static function executeCommand(array $_command)
     {
-        $parts = array(
-            escapeshellarg(self::getPythonPath()),
-            escapeshellarg(dirname(__FILE__) . '/../../resources/gkeepmanager.py')
-        );
+        $parts = array(self::getPythonPath(), dirname(__FILE__) . '/../../resources/gkeepmanager.py', '--request-stdin');
         foreach ($_command as $argument) {
             if (!is_scalar($argument) || strlen((string) $argument) > 65535 || strpos((string) $argument, "\0") !== false) {
                 throw new InvalidArgumentException(__('Argument GKeep invalide', __FILE__));
             }
-            $parts[] = escapeshellarg((string) $argument);
         }
-        $cmd = system::getCmdSudo() . implode(' ', $parts);
+        $sudo = trim(system::getCmdSudo());
+        if ($sudo !== '') {
+            $parts = array_merge(preg_split('/\s+/', $sudo), $parts);
+        }
         log::add(__CLASS__, 'debug', __('Exécution de la commande GKeep', __FILE__));
-
-        exec($cmd . ' 2>&1', $output, $return_value);
-        $result = implode("\n", $output);
+        $process = proc_open($parts, array(0 => array('pipe', 'r'), 1 => array('pipe', 'w'), 2 => array('file', '/dev/null', 'w')), $pipes);
+        if (!is_resource($process)) {
+            throw new RuntimeException(__('Impossible de lancer la commande GKeep', __FILE__));
+        }
+        $payload = json_encode(array('args' => array_map('strval', $_command)), JSON_THROW_ON_ERROR);
+        $written = 0;
+        while ($written < strlen($payload)) {
+            $length = fwrite($pipes[0], substr($payload, $written));
+            if ($length === false || $length === 0) break;
+            $written += $length;
+        }
+        fclose($pipes[0]);
+        $result = stream_get_contents($pipes[1]);
+        fclose($pipes[1]);
+        $return_value = proc_close($process);
+        if ($written !== strlen($payload)) {
+            throw new RuntimeException(__('Impossible de transmettre les identifiants GKeep', __FILE__));
+        }
         if ($return_value !== 0) {
             log::add(__CLASS__, 'warning', __('La commande GKeep a retourné le code ', __FILE__) . $return_value);
         }
-        return array('output' => $result, 'exit_code' => $return_value);
+        return array('output' => $result === false ? '' : $result, 'exit_code' => $return_value);
     }
 
     /**
@@ -945,7 +981,7 @@ class gkeep extends eqLogic
      */
     public function checkItem($_itemId, $_change)
     {
-        log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . $_itemId . ' ' . json_encode($_change));
+        log::add(__CLASS__, 'debug', __FUNCTION__ . ' item=' . $_itemId);
         $account = (string) $this->getConfiguration('account');
         $cmd = array('--username', $account, '--token', (string) gkeep::getTokenByUsername($account), 'modify_item', '--note_id', (string) $this->getLogicalId(), '--item_id', (string) $_itemId);
         if (isset($_change['checked'])) $cmd[] = $_change['checked'] == 'true' ? '--checked' : '--unchecked';
@@ -967,7 +1003,7 @@ class gkeep extends eqLogic
      */
     public function addItem($_change)
     {
-        log::add(__CLASS__, 'debug', __FUNCTION__ . ' ' . json_encode($_change));
+        log::add(__CLASS__, 'debug', __FUNCTION__ . ' note=' . $this->getLogicalId());
         $account = (string) $this->getConfiguration('account');
         $cmd = array('--username', $account, '--token', (string) gkeep::getTokenByUsername($account), 'add_item', '--note_id', (string) $this->getLogicalId());
         if (isset($_change['text'])) {
@@ -1014,7 +1050,9 @@ class gkeep extends eqLogic
             }
         }
         $return = self::sendCmdAndFormatResult($cmd);
-        $this->refresh();
+        if ((int)($return['code'] ?? -1) === 0) {
+            $this->refresh();
+        }
         return $return;
     }
 
@@ -1032,6 +1070,9 @@ class gkeep extends eqLogic
 		if (!is_array($replace)) {
 			return $replace;
 		}
+        // Jeedom supplies raw names; this plugin inserts them into its own HTML template.
+        $replace['#name_display#'] = htmlspecialchars((string)$replace['#name_display#'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $replace['#object_name#'] = htmlspecialchars((string)$replace['#object_name#'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         //$replace['#height#'] = '500px';
 
         $replace['#pin_id#'] = ($pin_cmd = $this->getCmd('action', 'pinNote')) && $pin_cmd->getIsVisible() == 1 ? $pin_cmd->getId() : '';
@@ -1152,7 +1193,7 @@ class gkeepCmd extends cmd
     public function execute($_options = array())
     {
         $eqLogic = $this->getEqLogic();
-        log::add('gkeep', 'debug', __("Action sur ", __FILE__) . $this->getLogicalId() . __(" avec options ", __FILE__) . json_encode($_options));
+        log::add('gkeep', 'debug', __("Action sur ", __FILE__) . $this->getLogicalId());
         $parts = explode('::', $this->getLogicalId());
         $replace = array();
 
@@ -1175,7 +1216,6 @@ class gkeepCmd extends cmd
                 break;
         }
         $value = str_replace(array_keys($replace),$replace,$this->getConfiguration('updateCmdToValue', ''));
-        log::add('gkeep', 'debug', __("Valeur à envoyer ", __FILE__) . $value);
         switch ($this->getLogicalId()) {
             case 'refresh':
                 $eqLogic->refresh();
@@ -1207,12 +1247,14 @@ class gkeepCmd extends cmd
 	public function toHtml($_version = 'dashboard', $_options = '')
     {
 
+        $listInfo = $this->getEqlogic()->getConfiguration('type') == 'List' && $this->getType() === 'info';
         if ($this->getEqlogic()->getConfiguration('type') == 'List') {
             $_options = array(
                 'checked' => strval($this->getConfiguration('checked', '')),
                 'keepId' => $this->getConfiguration('id', ''),
                 'order' => $this->getConfiguration('sort', '')
             );
+
         } else {
             $calculatedHeight = intval($this->getEqlogic()->getDisplay('height', '400')) - 50;
             $calculatedWidth = intval($this->getEqlogic()->getDisplay('width', '350')) - 17;
@@ -1221,6 +1263,13 @@ class gkeepCmd extends cmd
                 'keepId' => $this->getConfiguration('id', '')
             );
         }
-        return parent::toHtml($_version, $_options);
+        $html = parent::toHtml($_version, $_options);
+        if ($listInfo) {
+            // Insert after Jeedom's template replacement: command values remain raw for scenarios,
+            // while this JavaScript literal cannot close a script tag or break a string.
+            $value = json_encode((string)$this->execCmd(), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_INVALID_UTF8_SUBSTITUTE);
+            $html = str_replace('#gkeepInitialValue#', $value, $html);
+        }
+        return $html;
     }
 }

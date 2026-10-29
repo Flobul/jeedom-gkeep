@@ -20,6 +20,10 @@ jobs:
           coverage: none
       - name: Lint maintained PHP
         run: python3 .github/ci/php_lint.py
+      - name: Functional PHP/Python regressions
+        env:
+          GKEEP_TEST_SCRATCH: ${{ runner.temp }}
+        run: bash .github/ci/functional/run_gkeep_tests.sh
   phpstan:
     runs-on: ubuntu-24.04
     steps:

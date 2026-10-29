@@ -44,9 +44,10 @@
       jeedom.cmd.addUpdateFunction('#id#',function(_options) {
         if (is_object(cmd = document.querySelector('.cmd[data-cmd_uid="#uid#"]'))) {
           cmd.setAttribute('title', '{{Date de valeur}}: ' + _options.valueDate + '<br>{{Date de collecte}}: ' + _options.collectDate)
-          cmd.querySelector('.state').innerHTML = _options.display_value + ' #unite#';
-
-          //cmd.querySelector('.state').empty().append(_options.display_value+' #unite#')
+          const value = _options.display_value ?? '';
+          const state = cmd.querySelector('.state');
+          state.textContent = value + ' #unite#';
+          state.dataset.original = state.innerText;
           if ('#checked#' && '#checked#' != '#' + 'checked#') {
               cmd.querySelector('.checkBox').checked = true;
               cmd.querySelector('.state').style.textDecoration = 'line-through';
@@ -68,7 +69,7 @@
           }
         }
       });
-      jeedom.cmd.refreshValue([{cmd_id :'#id#',display_value: '#state#', valueDate: '#valueDate#', collectDate: '#collectDate#', alertLevel: '#alertLevel#', unit: '#unite#'}])
+      jeedom.cmd.refreshValue([{cmd_id :'#id#',display_value: #gkeepInitialValue#, valueDate: '#valueDate#', collectDate: '#collectDate#', alertLevel: '#alertLevel#', unit: '#unite#'}])
       document.querySelector('.cmd[data-cmd_uid=#uid#] .checkBox').addEventListener('click', function(event) {
           updateItem#id#({checked: event.target.checked});
       })
@@ -80,7 +81,7 @@
         }
       });
       document.querySelector('.cmd[data-cmd_uid=#uid#] .state').addEventListener('blur', function(event) {
-          if (event.target.innerText != '' && event.target.innerText != '#state#') {
+          if (event.target.innerText !== '' && event.target.innerText !== event.target.dataset.original) {
               updateItem#id#({text: event.target.innerText});
           }
       });
@@ -124,19 +125,12 @@
             handleAjaxError(request, status, error);
           },
           success: function(data) {
-            if (data.state != 'ok') {
+            if (data.state != 'ok' || !data.result || data.result.code !== 0) {
               jeedomUtils.showAlert({
-                message: data.result,
+                message: data.result?.message || data.result,
                 level: 'danger'
               });
               return;
-            }
-            if (data.code == 0) {
-                jeedom.cmd.refreshValue([{cmd_id :'#id#',display_value: _change.text}]);
-                document.querySelector('.cmd[data-cmd_uid=#uid#] .state').innerText = '';
-                document.querySelector('.cmd[data-cmd_uid=#uid#] .hiddenAddItem').style.display = "none";
-                document.querySelector('.cmd[data-cmd_uid=#uid#] .clickPlus').style.display = "contents";
-                document.querySelector('.cmd[data-cmd_uid=#uid#] .checkBoxList').style.opacity = .5;
             }
           }
         })
@@ -156,14 +150,12 @@
             handleAjaxError(request, status, error);
           },
           success: function(data) {
-            if (data.state != 'ok') {
+            if (data.state != 'ok' || !data.result || data.result.code !== 0) {
               jeedomUtils.showAlert({
-                message: data.result,
+                message: data.result?.message || data.result,
                 level: 'danger'
               });
               return;
-            }
-            if (data.code == 0) {
             }
           }
         })
