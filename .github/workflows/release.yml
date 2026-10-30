@@ -128,7 +128,7 @@ jobs:
           --github-output "$GITHUB_OUTPUT"
 
       - name: Upload release plan and exact notes
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: release-plan-${{ steps.guard.outputs.version }}-${{ github.run_id }}
           path: |
@@ -160,7 +160,7 @@ jobs:
           persist-credentials: false
 
       - name: Download reviewed release plan
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: release-plan-${{ needs.plan.outputs.version }}-${{ github.run_id }}
           path: ${{ runner.temp }}/release-plan
