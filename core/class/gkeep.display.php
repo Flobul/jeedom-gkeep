@@ -99,7 +99,7 @@ class gkeep_display extends eqLogic
                 echo '                <span class="hiddenAsTable"></span>';
                 echo '                <img class="imgColorFilter_' . preg_replace('/[^A-Za-z0-9_-]/', '', (string)$eqLogic->getConfiguration('color', 'DEFAULT')) . '" src="' . htmlspecialchars((string)$eqLogic->getImage()['img'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '"/>';
                 echo '                <br>';
-                echo '                <span class="name">' . (string)$eqLogic->getHumanName(true, true) . '</span>';
+                echo '                <span class="name">' . htmlspecialchars((string)$eqLogic->getHumanName(false, false), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</span>';
                 echo '                <span class="hidden hiddenAsCard displayTableRight">' . $visibleInfo . '</span>';
                 echo '            </div>';
             }

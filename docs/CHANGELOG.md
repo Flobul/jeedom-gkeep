@@ -2,6 +2,8 @@
 
 ## Non publié
 
+- Les noms d’équipements affichés dans les vignettes sont désormais rendus comme du texte afin d’empêcher l’interprétation de balises HTML.
+
 ## Version 1.2.0 (29/10/2026)
 
 - La synchronisation signale désormais les comptes en erreur au lieu d'annoncer une réussite lorsque les notes n'ont pas été récupérées.
