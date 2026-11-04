@@ -2,6 +2,8 @@
 
 ## Non publié
 
+
+- Ajout d’un accès Community avec aperçu et diagnostic facultatif limité à des compteurs non sensibles.
 - Les noms d’équipements affichés dans les vignettes sont désormais rendus comme du texte afin d’empêcher l’interprétation de balises HTML.
 
 ## Version 1.2.0 (29/10/2026)
