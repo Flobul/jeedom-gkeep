@@ -2,12 +2,10 @@
 
 ## Non publié
 
+## Version 1.2.0 (29/10/2026)
 
 - Ajout d’un accès Community avec aperçu et diagnostic facultatif limité à des compteurs non sensibles.
 - Les noms d’équipements affichés dans les vignettes sont désormais rendus comme du texte afin d’empêcher l’interprétation de balises HTML.
-
-## Version 1.2.0 (29/10/2026)
-
 - La synchronisation signale désormais les comptes en erreur au lieu d'annoncer une réussite lorsque les notes n'ont pas été récupérées.
 - Les tuiles des équipements activés ne sont plus grisées à tort et la page de configuration affiche « Nom de la note ».
 - Les noms de notes accentués hérités d'un ancien encodage sont réparés sans écraser les noms personnalisés.
