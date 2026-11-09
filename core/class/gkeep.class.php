@@ -22,31 +22,39 @@ require_once __DIR__ . "/../../../../core/php/core.inc.php";
 class gkeep extends eqLogic
 {
 
-    /**
-     * Return privacy-safe aggregate diagnostics for a Community support post.
-     */
     public static function getConfigForCommunity($_separator = '<br>')
     {
-        $equipments = eqLogic::byType(__CLASS__);
-        $enabled = 0;
-        $commands = 0;
-
-        foreach ($equipments as $equipment) {
-            if ((int) $equipment->getIsEnable() === 1) {
-                $enabled++;
-            }
-            $equipmentCommands = $equipment->getCmd();
-            $commands += is_array($equipmentCommands) ? count($equipmentCommands) : 0;
+        if (!is_string($_separator) || !in_array($_separator, array('<br>', '<br/>', '<br />', "\n"), true)) {
+            $_separator = '<br>';
         }
-
-        $lines = array(
-            '<!-- JEEDOM_PLUGIN_DIAGNOSTICS_START -->',
-            __('Équipements configurés', __FILE__) . ' : ' . count($equipments),
-            __('Équipements actifs', __FILE__) . ' : ' . $enabled,
-            __('Commandes configurées', __FILE__) . ' : ' . $commands,
-            '<!-- JEEDOM_PLUGIN_DIAGNOSTICS_END -->'
-        );
-
+        $unknown = __('Inconnu', __FILE__);
+        $isTrue = static function ($value) { return in_array($value, array(true, 1, '1'), true); };
+        $isFalse = static function ($value) { return in_array($value, array(false, 0, '0'), true); };
+        $integer = static function ($value, $min, $max) {
+            if ((!is_int($value) && !is_string($value)) || preg_match('/^[0-9]{1,10}$/D', (string) $value) !== 1) {
+                return null;
+            }
+            $number = (int) $value;
+            return $number >= $min && $number <= $max ? $number : null;
+        };
+        $present = static function ($value) { return is_string($value) && trim($value) !== ''; };
+        $format = static function ($value, $kind, $args = array()) use ($unknown, $integer) {
+            switch ($kind) {
+                case 'number':
+                    $number = $integer($value, $args[0], $args[1]);
+                    return $number === null ? $unknown : (string) $number;
+                case 'schedule':
+                    if (!is_string($value)) { return $unknown; }
+                    if ($value === '' || $value === 'never') { return __('Désactivé', __FILE__); }
+                    $schedules = array('* * * * *' => '1 min', '*/2 * * * *' => '2 min', '*/5 * * * *' => '5 min', '*/10 * * * *' => '10 min', '*/15 * * * *' => '15 min', '*/30 * * * *' => '30 min', '0 * * * *' => '1 h', '0 0 * * *' => '24 h');
+                    return isset($schedules[$value]) ? $schedules[$value] : $unknown;
+            }
+            return $unknown;
+        };
+        $lines = array('<!-- JEEDOM_PLUGIN_DIAGNOSTICS_START -->');
+        $lines[] = __('Emplacements de comptes configurés', __FILE__) . ' : ' . $format(config::byKey('max_account_number', __CLASS__, ''), 'number', array(1, 10));
+        $lines[] = __('Rafraîchissement', __FILE__) . ' : ' . $format(config::byKey('autorefresh', __CLASS__, ''), 'schedule', array());
+        $lines[] = '<!-- JEEDOM_PLUGIN_DIAGNOSTICS_END -->';
         return implode($_separator, $lines) . $_separator;
     }
 
@@ -57,7 +65,7 @@ class gkeep extends eqLogic
      *
      * @var string
      */
-    public static $_pluginVersion = '1.2.0';
+    public static $_pluginVersion = '1.3.0';
 
     /**
      * Tableau des templates.

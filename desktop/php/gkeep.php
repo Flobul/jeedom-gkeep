@@ -37,7 +37,8 @@ $eqLogics = eqLogic::byType($plugin->getId());
 <div class="row row-overflow">
   <div class="eqLogicThumbnailDisplay" style="border-left: solid 1px #EEE; padding-left: 25px;">
     <legend><i class="fas fa-cog"></i> {{Gestion}}</legend>
-    <div class="eqLogicThumbnailContainer col-sm-8">
+    <div class="eqLogicThumbnailContainer gkeep-management">
+            <div class="gkeep-management-group gkeep-management-actions">
 
         <?php
           gkeep_display::displayActionCard('{{Synchronisation}}', 'fa-sync', 'id="bt_synchronizegkeep"', 'eqLogicAction logoPrimaryGkeep');
@@ -51,6 +52,15 @@ $eqLogics = eqLogic::byType($plugin->getId());
           gkeep_display::displayActionCard('{{Suppression de tous les appareils}}', 'fa-trash-alt', 'data-action="delete" data-action2="all"', 'logoTrashGkeep');
           ?>
     </div>
+            <?php if (version_compare((string) jeedom::version(), '4.4.0', '>=')) { ?>
+            <div class="gkeep-management-group gkeep-management-community">
+                <div class="cursor eqLogicAction logoSecondary" data-action="createCommunityPost" data-plugin_id="gkeep" role="button" tabindex="0" aria-label="{{Créer un sujet d'assistance sur Community Jeedom}}">
+                    <i class="fas fa-comments"></i><br>
+                    <span style="color:var(--txt-color)">{{Community}}</span>
+                </div>
+            </div>
+            <?php } ?>
+        </div>
     <div class="eqLogicThumbnailContainer col-sm-4">
         <?php
           for ($i = 1; $i <= config::byKey('max_account_number', 'gkeep'); $i++) {
@@ -309,3 +319,4 @@ include_file('desktop', 'community', 'js', 'gkeep');
 include_file('desktop', 'gkeep', 'js', 'gkeep');
 include_file('core', 'plugin.template', 'js');
 ?>
+<?php include_file('desktop', 'community', 'js', 'gkeep'); ?>

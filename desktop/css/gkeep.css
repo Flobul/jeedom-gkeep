@@ -161,3 +161,80 @@
 .imgColorFilter_TEAL {
     filter: brightness(117%) contrast(117%) hue-rotate(136deg) saturate(65%) grayscale(44%);
 }
+/* Management actions and a distinct Community block aligned at the right. */
+.eqLogicThumbnailDisplay .gkeep-management {
+    display: flex !important;
+    flex-flow: row wrap !important;
+    align-items: flex-start;
+    gap: 16px 24px;
+    width: 100%;
+    clear: both;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.gkeep-management > .gkeep-management-group {
+    display: flex !important;
+    flex-flow: row wrap !important;
+    align-items: flex-start;
+    justify-content: flex-start !important;
+    width: auto !important;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.gkeep-management > .gkeep-management-actions {
+    flex: 1 1 0 !important;
+}
+
+.gkeep-management > .gkeep-management-community {
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+}
+
+.gkeep-management > .gkeep-management-group > div {
+    box-sizing: border-box;
+    display: flex !important;
+    flex: 0 0 130px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 130px !important;
+    min-height: 110px;
+    margin: 5px !important;
+    padding: 10px 5px !important;
+    text-align: center;
+}
+
+.gkeep-management > .gkeep-management-group > div > i {
+    display: block;
+    height: 48px;
+    line-height: 48px;
+    font-size: 38px !important;
+}
+
+.gkeep-management > .gkeep-management-group > div > br {
+    display: none;
+}
+
+.gkeep-management > .gkeep-management-group > div > span {
+    margin-top: 8px;
+    line-height: 1.3;
+}
+
+.gkeep-management > .gkeep-management-community > [hidden] {
+    display: none !important;
+}
+
+@media (max-width: 480px) {
+    .gkeep-management > .gkeep-management-actions {
+        flex-basis: 100% !important;
+    }
+}
