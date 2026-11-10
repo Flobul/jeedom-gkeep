@@ -41,7 +41,7 @@ class ReleaseWorkflowTests(unittest.TestCase):
         self.assertIn("CENTRAL_DISPATCH_ENABLED", text)
         self.assertIn("CENTRAL_DISPATCH_TOKEN", text)
         self.assertIn("repos/Flobul/.jeedom/dispatches", text)
-        self.assertIn("actions/upload-artifact@v6", text)
+        self.assertIn("actions/upload-artifact@v7", text)
         self.assertNotIn("pull_request_target", text)
 
     def test_release_baseline_matches_reference_1_01_0_commit(self):
