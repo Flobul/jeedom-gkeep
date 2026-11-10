@@ -48,6 +48,6 @@ foreach (array(array(), array(new FakeEquipment(1), new FakeEquipment(0))) as $i
     foreach (array('TOP_SECRET', '192.168.', 'private.broker', '/Users/', 'private@example.com', 'private-user') as $secret) {
         if (strpos($output, $secret) !== false) throw new RuntimeException('Sensitive value leaked: ' . $secret);
     }
-    if (strpos($output, 'Équipements configurés') === false && strpos($output, 'Poêles configurés') === false) throw new RuntimeException('Equipment count missing');
+    if (strpos($output, 'Équipements configurés') === false && strpos($output, 'Poêles configurés') === false && strpos($output, 'Emplacements de comptes configurés') === false) throw new RuntimeException('Equipment count missing');
 }
 echo "Community diagnostic tests: OK (gkeep)\n";

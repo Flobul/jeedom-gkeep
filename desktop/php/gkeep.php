@@ -46,9 +46,6 @@ $eqLogics = eqLogic::byType($plugin->getId());
           gkeep_display::displayActionCard('{{Configuration}}', 'fa-wrench', 'data-action="gotoPluginConf"', 'logoSecondary');
           gkeep_display::displayActionCard('{{Santé}}', 'fa-heartbeat', 'id="bt_healthgkeep"', 'logoSecondary');
           gkeep_display::displayActionCard('{{Documentation}}', 'fa-book-reader', 'id="bt_documentationgkeep" data-location="' . $plugin->getDocumentation() . '"', 'logoSecondary');
-          if (version_compare((string) jeedom::version(), '4.4.0', '>=')) {
-              gkeep_display::displayActionCard('{{Community}}', 'fa-comments', 'data-action="createCommunityPost" data-plugin_id="gkeep" role="button" tabindex="0" aria-label="{{Créer un sujet d\'assistance sur Community Jeedom}}"', 'eqLogicAction logoSecondary');
-          }
           gkeep_display::displayActionCard('{{Suppression de tous les appareils}}', 'fa-trash-alt', 'data-action="delete" data-action2="all"', 'logoTrashGkeep');
           ?>
     </div>
@@ -319,4 +316,3 @@ include_file('desktop', 'community', 'js', 'gkeep');
 include_file('desktop', 'gkeep', 'js', 'gkeep');
 include_file('core', 'plugin.template', 'js');
 ?>
-<?php include_file('desktop', 'community', 'js', 'gkeep'); ?>
